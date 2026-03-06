@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ArrowLeft, Plus, Pencil, Trash2, Check, X, CalendarDays, CheckCircle2, AlertTriangle, Clock } from "lucide-react";
+import { ArrowLeft, Plus, Pencil, Trash2, Check, X, CalendarDays, CheckCircle2, AlertTriangle, Clock, Loader2 } from "lucide-react";
 
 const ProjectView = () => {
   const { id } = useParams<{ id: string }>();
@@ -24,53 +24,68 @@ const ProjectView = () => {
   const [showTaskForm, setShowTaskForm] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | undefined>();
   const [selectedQuarter, setSelectedQuarter] = useState<FiscalQuarter>(getCurrentFiscalQuarter());
+  const [loading, setLoading] = useState(true);
   const quarters = getAdjacentQuarters(2);
 
-  const refresh = useCallback(() => {
+  const refresh = useCallback(async () => {
     if (!id) return;
-    const projects = getProjects();
-    const p = projects.find((p) => p.id === id);
-    if (!p) { navigate("/"); return; }
-    setProject(p);
-    setNameValue(p.name);
-    setTasks(getTasksByProject(id));
+    try {
+      const projects = await getProjects();
+      const p = projects.find((p) => p.id === id);
+      if (!p) { navigate("/"); return; }
+      setProject(p);
+      setNameValue(p.name);
+      const t = await getTasksByProject(id);
+      setTasks(t);
+    } catch (err) {
+      console.error("Failed to load project:", err);
+    } finally {
+      setLoading(false);
+    }
   }, [id, navigate]);
 
   useEffect(() => { refresh(); }, [refresh]);
+
+  if (loading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
 
   if (!project) return null;
 
   const risk = assessRisk(tasks);
   const summary = getProjectSummary(tasks);
 
-  const handleSaveName = () => {
+  const handleSaveName = async () => {
     if (nameValue.trim() && nameValue.trim() !== project.name) {
-      updateProject(project.id, nameValue.trim());
+      await updateProject(project.id, nameValue.trim());
     }
     setEditingName(false);
     refresh();
   };
 
-  const handleSaveTask = (data: { name: string; start_date: string; end_date: string; status: TaskStatus; detail: string }) => {
+  const handleSaveTask = async (data: { name: string; start_date: string; end_date: string; status: TaskStatus; detail: string }) => {
     if (editingTask) {
-      updateTask(editingTask.id, data);
+      await updateTask(editingTask.id, data);
     } else {
-      createTask({ ...data, project_id: project.id });
+      await createTask({ ...data, project_id: project.id });
     }
     setEditingTask(undefined);
     refresh();
   };
 
-  const handleDeleteTask = (taskId: string) => {
+  const handleDeleteTask = async (taskId: string) => {
     if (confirm("Delete this task?")) {
-      deleteTask(taskId);
+      await deleteTask(taskId);
       refresh();
     }
   };
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
       <header className="border-b border-border bg-card">
         <div className="container max-w-5xl mx-auto px-4 py-4">
           <Button variant="ghost" size="sm" onClick={() => navigate("/")} className="mb-3 -ml-2 text-muted-foreground">
@@ -105,7 +120,6 @@ const ProjectView = () => {
       </header>
 
       <main className="container max-w-5xl mx-auto px-4 py-6 space-y-6">
-        {/* Summary cards */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           <SummaryCard icon={<CalendarDays className="h-4 w-4 text-primary" />} label="Total Tasks" value={summary.totalTasks} />
           <SummaryCard icon={<CheckCircle2 className="h-4 w-4 text-status-done" />} label="Completed" value={summary.completedTasks} />
@@ -117,7 +131,6 @@ const ProjectView = () => {
           />
         </div>
 
-        {/* Gantt Chart */}
         <Card>
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
@@ -148,7 +161,6 @@ const ProjectView = () => {
           </CardContent>
         </Card>
 
-        {/* Task List */}
         <Card>
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
