@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Plus, FolderOpen, Trash2, LayoutDashboard } from "lucide-react";
+import { Plus, FolderOpen, Trash2, LayoutDashboard, Loader2 } from "lucide-react";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -17,36 +17,50 @@ const Dashboard = () => {
   const [allTasks, setAllTasks] = useState<Task[]>([]);
   const [showCreate, setShowCreate] = useState(false);
   const [newName, setNewName] = useState("");
+  const [loading, setLoading] = useState(true);
 
-  const refresh = useCallback(() => {
-    setProjects(getProjects());
-    setAllTasks(getTasks());
+  const refresh = useCallback(async () => {
+    try {
+      const [p, t] = await Promise.all([getProjects(), getTasks()]);
+      setProjects(p);
+      setAllTasks(t);
+    } catch (err) {
+      console.error("Failed to load data:", err);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
   useEffect(() => {
-    seedData();
-    refresh();
+    seedData().then(() => refresh());
   }, [refresh]);
 
-  const handleCreate = () => {
+  const handleCreate = async () => {
     if (!newName.trim()) return;
-    createProject(newName.trim());
+    await createProject(newName.trim());
     setNewName("");
     setShowCreate(false);
     refresh();
   };
 
-  const handleDelete = (id: string, e: React.MouseEvent) => {
+  const handleDelete = async (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
     if (confirm("Delete this project and all its tasks?")) {
-      deleteProject(id);
+      await deleteProject(id);
       refresh();
     }
   };
 
+  if (loading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
       <header className="border-b border-border bg-card">
         <div className="container max-w-5xl mx-auto px-4 py-5 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
@@ -60,7 +74,6 @@ const Dashboard = () => {
         </div>
       </header>
 
-      {/* Content */}
       <main className="container max-w-5xl mx-auto px-4 py-8">
         {projects.length === 0 ? (
           <div className="text-center py-20">
@@ -111,7 +124,6 @@ const Dashboard = () => {
         )}
       </main>
 
-      {/* Create dialog */}
       <Dialog open={showCreate} onOpenChange={setShowCreate}>
         <DialogContent className="sm:max-w-sm">
           <DialogHeader>
