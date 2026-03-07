@@ -23,6 +23,7 @@ const ProjectView = () => {
   const [nameValue, setNameValue] = useState("");
   const [showTaskForm, setShowTaskForm] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | undefined>();
+  const [parentForSubtask, setParentForSubtask] = useState<Task | undefined>();
   const [selectedQuarter, setSelectedQuarter] = useState<FiscalQuarter>(getCurrentFiscalQuarter());
   const [loading, setLoading] = useState(true);
   const quarters = getAdjacentQuarters(2);
