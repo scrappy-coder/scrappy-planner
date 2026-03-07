@@ -67,11 +67,11 @@ const ProjectView = () => {
     refresh();
   };
 
-  const handleSaveTask = async (data: { name: string; start_date: string; end_date: string; status: TaskStatus; detail: string }) => {
+  const handleSaveTask = async (data: { name: string; start_date: string; end_date: string; status: TaskStatus; detail: string; parent_id?: string | null }) => {
     if (editingTask) {
       await updateTask(editingTask.id, data);
     } else {
-      await createTask({ ...data, project_id: project.id });
+      await createTask({ ...data, project_id: project.id, parent_id: data.parent_id ?? null });
     }
     setEditingTask(undefined);
     refresh();
