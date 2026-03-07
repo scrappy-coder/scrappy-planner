@@ -10,6 +10,8 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Plus, FolderOpen, Trash2, LayoutDashboard, Loader2 } from "lucide-react";
+import { ProjectGantt } from "@/components/ProjectGantt";
+import { CompletionChart } from "@/components/CompletionChart";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -74,7 +76,28 @@ const Dashboard = () => {
         </div>
       </header>
 
-      <main className="container max-w-5xl mx-auto px-4 py-8">
+      <main className="container max-w-5xl mx-auto px-4 py-8 space-y-8">
+        {projects.length > 0 && allTasks.length > 0 && (
+          <div className="grid gap-6 lg:grid-cols-2">
+            <Card>
+              <CardContent className="py-4 px-5">
+                <h3 className="text-sm font-semibold text-foreground mb-3">Project Timeline</h3>
+                <ProjectGantt
+                  projects={projects}
+                  tasks={allTasks}
+                  onSelectProject={(id) => navigate(`/project/${id}`)}
+                />
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="py-4 px-5">
+                <h3 className="text-sm font-semibold text-foreground mb-3">Completion Overview</h3>
+                <CompletionChart projects={projects} tasks={allTasks} />
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
         {projects.length === 0 ? (
           <div className="text-center py-20">
             <FolderOpen className="h-12 w-12 text-muted-foreground/40 mx-auto mb-4" />
