@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Project, Task, TaskStatus } from "@/lib/types";
+import { cn } from "@/lib/utils";
 import { getProjects, updateProject, getTasksByProject, createTask, updateTask, deleteTask } from "@/lib/store";
 import { assessRisk, getProjectSummary } from "@/lib/risk";
 import { getCurrentFiscalQuarter, getAdjacentQuarters } from "@/lib/fiscal";
