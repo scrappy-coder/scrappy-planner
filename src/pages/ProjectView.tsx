@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Project, Task, TaskStatus } from "@/lib/types";
+import { cn } from "@/lib/utils";
 import { getProjects, updateProject, getTasksByProject, createTask, updateTask, deleteTask } from "@/lib/store";
 import { assessRisk, getProjectSummary } from "@/lib/risk";
 import { getCurrentFiscalQuarter, getAdjacentQuarters } from "@/lib/fiscal";
@@ -12,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ArrowLeft, Plus, Pencil, Trash2, Check, X, CalendarDays, CheckCircle2, AlertTriangle, Clock, Loader2 } from "lucide-react";
+import { ArrowLeft, Plus, Pencil, Trash2, Check, X, CalendarDays, CheckCircle2, AlertTriangle, Clock, Loader2, CornerDownRight } from "lucide-react";
 
 const ProjectView = () => {
   const { id } = useParams<{ id: string }>();
@@ -23,6 +24,7 @@ const ProjectView = () => {
   const [nameValue, setNameValue] = useState("");
   const [showTaskForm, setShowTaskForm] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | undefined>();
+  const [parentForSubtask, setParentForSubtask] = useState<Task | undefined>();
   const [selectedQuarter, setSelectedQuarter] = useState<FiscalQuarter>(getCurrentFiscalQuarter());
   const [loading, setLoading] = useState(true);
   const quarters = getAdjacentQuarters(2);
@@ -67,11 +69,11 @@ const ProjectView = () => {
     refresh();
   };
 
-  const handleSaveTask = async (data: { name: string; start_date: string; end_date: string; status: TaskStatus; detail: string }) => {
+  const handleSaveTask = async (data: { name: string; start_date: string; end_date: string; status: TaskStatus; detail: string; parent_id?: string | null }) => {
     if (editingTask) {
       await updateTask(editingTask.id, data);
     } else {
-      await createTask({ ...data, project_id: project.id });
+      await createTask({ ...data, project_id: project.id, parent_id: data.parent_id ?? null });
     }
     setEditingTask(undefined);
     refresh();
@@ -165,7 +167,7 @@ const ProjectView = () => {
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
               <CardTitle className="text-base">Tasks</CardTitle>
-              <Button size="sm" onClick={() => { setEditingTask(undefined); setShowTaskForm(true); }}>
+              <Button size="sm" onClick={() => { setEditingTask(undefined); setParentForSubtask(undefined); setShowTaskForm(true); }}>
                 <Plus className="h-4 w-4 mr-1" /> Add Task
               </Button>
             </div>
@@ -175,31 +177,31 @@ const ProjectView = () => {
               <p className="text-sm text-muted-foreground text-center py-8">No tasks yet. Add one to get started.</p>
             ) : (
               <div className="space-y-2">
-                {tasks.map((task) => {
-                  const isOverdue = new Date(task.end_date) < new Date() && task.status !== "Done";
+                {tasks.filter((t) => !t.parent_id).map((task) => {
+                  const subtasks = tasks.filter((t) => t.parent_id === task.id);
                   return (
-                    <div key={task.id} className="flex items-center gap-3 p-3 rounded-md border border-border bg-card hover:bg-accent/50 transition-colors group">
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-1">
-                          <span className="text-sm font-medium text-foreground truncate">{task.name}</span>
-                          <StatusBadge status={task.status} />
-                          {isOverdue && (
-                            <span className="text-[10px] font-medium text-destructive">OVERDUE</span>
-                          )}
+                    <div key={task.id}>
+                      <TaskRow
+                        task={task}
+                        isOverdue={new Date(task.end_date) < new Date() && task.status !== "Done"}
+                        onEdit={() => { setEditingTask(task); setParentForSubtask(undefined); setShowTaskForm(true); }}
+                        onDelete={() => handleDeleteTask(task.id)}
+                        onAddSubtask={() => { setEditingTask(undefined); setParentForSubtask(task); setShowTaskForm(true); }}
+                      />
+                      {subtasks.length > 0 && (
+                        <div className="ml-6 mt-1 space-y-1 border-l-2 border-border pl-3">
+                          {subtasks.map((sub) => (
+                            <TaskRow
+                              key={sub.id}
+                              task={sub}
+                              isOverdue={new Date(sub.end_date) < new Date() && sub.status !== "Done"}
+                              isSubtask
+                              onEdit={() => { setEditingTask(sub); setParentForSubtask(undefined); setShowTaskForm(true); }}
+                              onDelete={() => handleDeleteTask(sub.id)}
+                            />
+                          ))}
                         </div>
-                        <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                          <span>{task.start_date} → {task.end_date}</span>
-                          {task.detail && <span className="truncate">· {task.detail}</span>}
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => { setEditingTask(task); setShowTaskForm(true); }}>
-                          <Pencil className="h-3.5 w-3.5" />
-                        </Button>
-                        <Button size="icon" variant="ghost" className="h-7 w-7 text-muted-foreground hover:text-destructive" onClick={() => handleDeleteTask(task.id)}>
-                          <Trash2 className="h-3.5 w-3.5" />
-                        </Button>
-                      </div>
+                      )}
                     </div>
                   );
                 })}
@@ -211,13 +213,65 @@ const ProjectView = () => {
 
       <TaskForm
         open={showTaskForm}
-        onClose={() => { setShowTaskForm(false); setEditingTask(undefined); }}
+        onClose={() => { setShowTaskForm(false); setEditingTask(undefined); setParentForSubtask(undefined); }}
         onSave={handleSaveTask}
         initialData={editingTask}
+        parentTask={parentForSubtask}
       />
     </div>
   );
 };
+
+function TaskRow({
+  task,
+  isOverdue,
+  isSubtask,
+  onEdit,
+  onDelete,
+  onAddSubtask,
+}: {
+  task: Task;
+  isOverdue: boolean;
+  isSubtask?: boolean;
+  onEdit: () => void;
+  onDelete: () => void;
+  onAddSubtask?: () => void;
+}) {
+  return (
+    <div className={cn(
+      "flex items-center gap-3 p-3 rounded-md border border-border bg-card hover:bg-accent/50 transition-colors group",
+      isSubtask && "py-2"
+    )}>
+      {isSubtask && <CornerDownRight className="h-3.5 w-3.5 text-muted-foreground shrink-0" />}
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-2 mb-1">
+          <span className={cn("text-sm font-medium text-foreground truncate", isSubtask && "text-xs")}>{task.name}</span>
+          <StatusBadge status={task.status} />
+          {isOverdue && (
+            <span className="text-[10px] font-medium text-destructive">OVERDUE</span>
+          )}
+        </div>
+        <div className="flex items-center gap-3 text-xs text-muted-foreground">
+          <span>{task.start_date} → {task.end_date}</span>
+          {task.detail && <span className="truncate">· {task.detail}</span>}
+        </div>
+      </div>
+      <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+        {onAddSubtask && (
+          <Button size="icon" variant="ghost" className="h-7 w-7" onClick={onAddSubtask} title="Add subtask">
+            <Plus className="h-3.5 w-3.5" />
+          </Button>
+        )}
+        <Button size="icon" variant="ghost" className="h-7 w-7" onClick={onEdit}>
+          <Pencil className="h-3.5 w-3.5" />
+        </Button>
+        <Button size="icon" variant="ghost" className="h-7 w-7 text-muted-foreground hover:text-destructive" onClick={onDelete}>
+          <Trash2 className="h-3.5 w-3.5" />
+        </Button>
+      </div>
+    </div>
+  );
+}
 
 function SummaryCard({ icon, label, value }: { icon: React.ReactNode; label: string; value: string | number }) {
   return (

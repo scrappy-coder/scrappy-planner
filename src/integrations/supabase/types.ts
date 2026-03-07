@@ -39,6 +39,7 @@ export type Database = {
           end_date: string
           id: string
           name: string
+          parent_id: string | null
           project_id: string
           start_date: string
           status: string
@@ -49,6 +50,7 @@ export type Database = {
           end_date: string
           id?: string
           name: string
+          parent_id?: string | null
           project_id: string
           start_date: string
           status?: string
@@ -59,11 +61,19 @@ export type Database = {
           end_date?: string
           id?: string
           name?: string
+          parent_id?: string | null
           project_id?: string
           start_date?: string
           status?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "tasks_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "tasks"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "tasks_project_id_fkey"
             columns: ["project_id"]

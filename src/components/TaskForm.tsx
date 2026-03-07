@@ -10,14 +10,15 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 interface TaskFormProps {
   open: boolean;
   onClose: () => void;
-  onSave: (task: { name: string; start_date: string; end_date: string; status: TaskStatus; detail: string }) => void;
+  onSave: (task: { name: string; start_date: string; end_date: string; status: TaskStatus; detail: string; parent_id?: string | null }) => void;
   initialData?: Task;
+  parentTask?: Task;
 }
 
-export function TaskForm({ open, onClose, onSave, initialData }: TaskFormProps) {
+export function TaskForm({ open, onClose, onSave, initialData, parentTask }: TaskFormProps) {
   const [name, setName] = useState(initialData?.name ?? "");
-  const [startDate, setStartDate] = useState(initialData?.start_date ?? "");
-  const [endDate, setEndDate] = useState(initialData?.end_date ?? "");
+  const [startDate, setStartDate] = useState(initialData?.start_date ?? parentTask?.start_date ?? "");
+  const [endDate, setEndDate] = useState(initialData?.end_date ?? parentTask?.end_date ?? "");
   const [status, setStatus] = useState<TaskStatus>(initialData?.status ?? "Not Started");
   const [detail, setDetail] = useState(initialData?.detail ?? "");
   const [error, setError] = useState("");
@@ -27,15 +28,28 @@ export function TaskForm({ open, onClose, onSave, initialData }: TaskFormProps) 
     if (!startDate) { setError("Start date is required"); return; }
     if (!endDate) { setError("End date is required"); return; }
     if (new Date(endDate) < new Date(startDate)) { setError("End date must be after start date"); return; }
-    onSave({ name: name.trim(), start_date: startDate, end_date: endDate, status, detail: detail.trim() });
+    onSave({
+      name: name.trim(),
+      start_date: startDate,
+      end_date: endDate,
+      status,
+      detail: detail.trim(),
+      parent_id: parentTask?.id ?? initialData?.parent_id ?? null,
+    });
     onClose();
   };
+
+  const title = parentTask
+    ? `Add Subtask to "${parentTask.name}"`
+    : initialData
+      ? "Edit Task"
+      : "Add Task";
 
   return (
     <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>{initialData ? "Edit Task" : "Add Task"}</DialogTitle>
+          <DialogTitle>{title}</DialogTitle>
         </DialogHeader>
         <div className="space-y-4 pt-2">
           {error && <p className="text-sm text-destructive">{error}</p>}
