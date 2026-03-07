@@ -8,6 +8,7 @@ export interface Task {
   end_date: string;
   status: TaskStatus;
   detail: string;
+  parent_id: string | null;
 }
 
 export interface Project {

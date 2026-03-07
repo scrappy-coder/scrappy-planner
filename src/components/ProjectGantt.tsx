@@ -121,7 +121,7 @@ export function ProjectGantt({ projects, tasks, onSelectProject }: ProjectGanttP
             {months.map((m) => (
               <div
                 key={m.name}
-                className="absolute top-0 h-full flex items-center px-2 text-[11px] font-medium text-muted-foreground border-r border-border"
+                className="absolute top-0 h-full flex items-center px-1 text-[10px] font-medium text-muted-foreground border-r border-border overflow-hidden whitespace-nowrap"
                 style={{ left: `${m.startPct}%`, width: `${m.widthPct}%` }}
               >
                 {m.name}
