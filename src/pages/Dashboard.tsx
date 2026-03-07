@@ -12,6 +12,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Plus, FolderOpen, Trash2, LayoutDashboard, Loader2 } from "lucide-react";
 import { ProjectGantt } from "@/components/ProjectGantt";
 import { CompletionChart } from "@/components/CompletionChart";
+import { BurnDownChart } from "@/components/BurnDownChart";
 
 const Dashboard = () => {
   const navigate = useNavigate();
