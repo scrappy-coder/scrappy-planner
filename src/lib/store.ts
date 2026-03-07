@@ -88,7 +88,7 @@ export async function deleteTask(id: string) {
   if (error) throw error;
 }
 
-function mapTask(row: { id: string; project_id: string; name: string; start_date: string; end_date: string; status: string; detail: string }): Task {
+function mapTask(row: { id: string; project_id: string; name: string; start_date: string; end_date: string; status: string; detail: string; parent_id?: string | null }): Task {
   return {
     id: row.id,
     project_id: row.project_id,
@@ -97,6 +97,7 @@ function mapTask(row: { id: string; project_id: string; name: string; start_date
     end_date: row.end_date,
     status: row.status as TaskStatus,
     detail: row.detail,
+    parent_id: row.parent_id ?? null,
   };
 }
 
