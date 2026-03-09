@@ -115,7 +115,7 @@ export function BurnDownChart({ projects, tasks }: BurnDownChartProps) {
 
   return (
     <ResponsiveContainer width="100%" height={260}>
-      <LineChart data={data} margin={{ top: 5, right: 10, left: -10, bottom: 5 }}>
+      <LineChart data={data} margin={{ top: 16, right: 10, left: -10, bottom: 5 }}>
         <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
         <XAxis
           dataKey="date"
