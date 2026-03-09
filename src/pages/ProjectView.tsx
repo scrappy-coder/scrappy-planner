@@ -183,13 +183,28 @@ const ProjectView = () => {
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
               <CardTitle className="text-base">Tasks</CardTitle>
-              <Button size="sm" onClick={() => { setEditingTask(undefined); setParentForSubtask(undefined); setShowTaskForm(true); }}>
-                <Plus className="h-4 w-4 mr-1" /> Add Task
-              </Button>
+              <div className="flex items-center gap-2">
+                {tasks.length > 0 && !bulkEditing && (
+                  <Button size="sm" variant="outline" onClick={() => setBulkEditing(true)}>
+                    <TableProperties className="h-4 w-4 mr-1" /> Edit
+                  </Button>
+                )}
+                {!bulkEditing && (
+                  <Button size="sm" onClick={() => { setEditingTask(undefined); setParentForSubtask(undefined); setShowTaskForm(true); }}>
+                    <Plus className="h-4 w-4 mr-1" /> Add Task
+                  </Button>
+                )}
+              </div>
             </div>
           </CardHeader>
           <CardContent>
-            {tasks.length === 0 ? (
+            {bulkEditing ? (
+              <BulkEditTasks
+                tasks={tasks}
+                onSave={handleBulkSave}
+                onCancel={() => setBulkEditing(false)}
+              />
+            ) : tasks.length === 0 ? (
               <p className="text-sm text-muted-foreground text-center py-8">No tasks yet. Add one to get started.</p>
             ) : (
               <div className="space-y-2">
