@@ -8,12 +8,13 @@ import { getCurrentFiscalQuarter, getAdjacentQuarters } from "@/lib/fiscal";
 import { FiscalQuarter } from "@/lib/types";
 import { GanttChart } from "@/components/GanttChart";
 import { TaskForm } from "@/components/TaskForm";
+import { BulkEditTasks } from "@/components/BulkEditTasks";
 import { StatusBadge, RiskBadge } from "@/components/StatusBadge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ArrowLeft, Plus, Pencil, Trash2, Check, X, CalendarDays, CheckCircle2, AlertTriangle, Clock, Loader2, CornerDownRight } from "lucide-react";
+import { ArrowLeft, Plus, Pencil, Trash2, Check, X, CalendarDays, CheckCircle2, AlertTriangle, Clock, Loader2, CornerDownRight, TableProperties } from "lucide-react";
 
 const ProjectView = () => {
   const { id } = useParams<{ id: string }>();
@@ -26,6 +27,7 @@ const ProjectView = () => {
   const [editingTask, setEditingTask] = useState<Task | undefined>();
   const [parentForSubtask, setParentForSubtask] = useState<Task | undefined>();
   const [selectedQuarter, setSelectedQuarter] = useState<FiscalQuarter>(getCurrentFiscalQuarter());
+  const [bulkEditing, setBulkEditing] = useState(false);
   const [loading, setLoading] = useState(true);
   const quarters = getAdjacentQuarters(2);
 
@@ -84,6 +86,20 @@ const ProjectView = () => {
       await deleteTask(taskId);
       refresh();
     }
+  };
+
+  const handleBulkSave = async (
+    updates: Array<{ id: string; changes: Partial<Omit<Task, "id" | "project_id">> }>,
+    deletedIds: string[]
+  ) => {
+    for (const id of deletedIds) {
+      await deleteTask(id);
+    }
+    for (const { id, changes } of updates) {
+      await updateTask(id, changes);
+    }
+    setBulkEditing(false);
+    refresh();
   };
 
   return (
@@ -167,13 +183,28 @@ const ProjectView = () => {
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
               <CardTitle className="text-base">Tasks</CardTitle>
-              <Button size="sm" onClick={() => { setEditingTask(undefined); setParentForSubtask(undefined); setShowTaskForm(true); }}>
-                <Plus className="h-4 w-4 mr-1" /> Add Task
-              </Button>
+              <div className="flex items-center gap-2">
+                {tasks.length > 0 && !bulkEditing && (
+                  <Button size="sm" variant="outline" onClick={() => setBulkEditing(true)}>
+                    <TableProperties className="h-4 w-4 mr-1" /> Edit
+                  </Button>
+                )}
+                {!bulkEditing && (
+                  <Button size="sm" onClick={() => { setEditingTask(undefined); setParentForSubtask(undefined); setShowTaskForm(true); }}>
+                    <Plus className="h-4 w-4 mr-1" /> Add Task
+                  </Button>
+                )}
+              </div>
             </div>
           </CardHeader>
           <CardContent>
-            {tasks.length === 0 ? (
+            {bulkEditing ? (
+              <BulkEditTasks
+                tasks={tasks}
+                onSave={handleBulkSave}
+                onCancel={() => setBulkEditing(false)}
+              />
+            ) : tasks.length === 0 ? (
               <p className="text-sm text-muted-foreground text-center py-8">No tasks yet. Add one to get started.</p>
             ) : (
               <div className="space-y-2">
