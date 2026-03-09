@@ -8,6 +8,7 @@ import { getCurrentFiscalQuarter, getAdjacentQuarters } from "@/lib/fiscal";
 import { FiscalQuarter } from "@/lib/types";
 import { GanttChart } from "@/components/GanttChart";
 import { TaskForm } from "@/components/TaskForm";
+import { BulkEditTasks } from "@/components/BulkEditTasks";
 import { StatusBadge, RiskBadge } from "@/components/StatusBadge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
