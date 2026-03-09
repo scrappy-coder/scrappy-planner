@@ -30,16 +30,42 @@ export function BurnDownChart({ projects, tasks }: BurnDownChartProps) {
     const formatDate = (d: Date) =>
       d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
 
-    // Generate weekly data points
-    const points: { date: string; [key: string]: string | number }[] = [];
+    // Collect all date milestones (weekly + today + maxDate), deduplicate by timestamp
+    const dateSet = new Map<number, Date>();
     const current = new Date(minDate);
     current.setHours(0, 0, 0, 0);
 
-    const todayLabel = formatDate(today);
-    let todayInserted = false;
+    while (current <= maxDate) {
+      dateSet.set(current.getTime(), new Date(current));
+      current.setDate(current.getDate() + 7);
+    }
+    dateSet.set(maxDate.getTime(), new Date(maxDate));
 
-    const addPoint = (d: Date) => {
-      const label = formatDate(d);
+    // Insert today if within range
+    const todayInRange = today >= minDate && today <= maxDate;
+    if (todayInRange) {
+      dateSet.set(today.getTime(), new Date(today));
+    }
+
+    // Sort dates and build data points
+    const sortedDates = Array.from(dateSet.values()).sort((a, b) => a.getTime() - b.getTime());
+
+    // Use unique labels (append year-month-day to avoid dups with same formatted string)
+    const usedLabels = new Map<string, number>();
+    let resolvedTodayLabel = "";
+
+    const points = sortedDates.map((d) => {
+      let label = formatDate(d);
+      const count = usedLabels.get(label) || 0;
+      if (count > 0) {
+        label = `${label} `; // add invisible space to make unique
+      }
+      usedLabels.set(label, count + 1);
+
+      if (todayInRange && d.getTime() === today.getTime()) {
+        resolvedTodayLabel = label;
+      }
+
       const point: { date: string; [key: string]: string | number } = { date: label };
 
       for (const project of projects) {
@@ -57,39 +83,10 @@ export function BurnDownChart({ projects, tasks }: BurnDownChartProps) {
         point[project.name] = notCompleted;
       }
 
-      points.push(point);
-    };
+      return point;
+    });
 
-    while (current <= maxDate) {
-      // Insert today's data point if we're about to pass it
-      if (!todayInserted && current.getTime() >= today.getTime() && today >= minDate && today <= maxDate) {
-        if (current.getTime() !== today.getTime()) {
-          addPoint(today);
-        }
-        todayInserted = true;
-      }
-      addPoint(current);
-      current.setDate(current.getDate() + 7);
-    }
-
-    // If today is after all weekly points but before maxDate
-    if (!todayInserted && today >= minDate && today <= maxDate) {
-      addPoint(today);
-      todayInserted = true;
-    }
-
-    // Add final point at maxDate
-    const finalLabel = formatDate(maxDate);
-    const finalPoint: { date: string; [key: string]: string | number } = { date: finalLabel };
-    for (const project of projects) {
-      const projectTasks = tasks.filter((t) => t.project_id === project.id);
-      if (projectTasks.length === 0) continue;
-      const remaining = projectTasks.filter((t) => t.status !== "Done").length;
-      finalPoint[project.name] = remaining;
-    }
-    points.push(finalPoint);
-
-    return { data: points, todayLabel: (today >= minDate && today <= maxDate) ? todayLabel : "" };
+    return { data: points, todayLabel: resolvedTodayLabel };
   }, [projects, tasks]);
 
   const projectNames = useMemo(
@@ -118,7 +115,7 @@ export function BurnDownChart({ projects, tasks }: BurnDownChartProps) {
 
   return (
     <ResponsiveContainer width="100%" height={260}>
-      <LineChart data={data} margin={{ top: 5, right: 10, left: -10, bottom: 5 }}>
+      <LineChart data={data} margin={{ top: 16, right: 10, left: -10, bottom: 5 }}>
         <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
         <XAxis
           dataKey="date"
