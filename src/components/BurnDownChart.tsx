@@ -146,6 +146,21 @@ export function BurnDownChart({ projects, tasks }: BurnDownChartProps) {
           wrapperStyle={{ fontSize: 11 }}
           iconType="line"
         />
+        {todayLabel && (
+          <ReferenceLine
+            x={todayLabel}
+            stroke="hsl(var(--destructive))"
+            strokeWidth={2}
+            strokeDasharray="4 3"
+            label={{
+              value: "Today",
+              position: "top",
+              fill: "hsl(var(--destructive))",
+              fontSize: 10,
+              fontWeight: 600,
+            }}
+          />
+        )}
         {projectNames.map((name, i) => (
           <Line
             key={name}
