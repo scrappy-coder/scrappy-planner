@@ -80,11 +80,6 @@ export function BurnDownChart({ projects, tasks }: BurnDownChartProps) {
 
     // Add final point at maxDate
     const finalLabel = formatDate(maxDate);
-    const finalDiff = Math.abs(maxDate.getTime() - today.getTime());
-    if (finalDiff < closestDiff) {
-      closestLabel = finalLabel;
-    }
-
     const finalPoint: { date: string; [key: string]: string | number } = { date: finalLabel };
     for (const project of projects) {
       const projectTasks = tasks.filter((t) => t.project_id === project.id);
@@ -94,7 +89,7 @@ export function BurnDownChart({ projects, tasks }: BurnDownChartProps) {
     }
     points.push(finalPoint);
 
-    return { data: points, todayLabel: closestLabel };
+    return { data: points, todayLabel: (today >= minDate && today <= maxDate) ? todayLabel : "" };
   }, [projects, tasks]);
 
   const projectNames = useMemo(
