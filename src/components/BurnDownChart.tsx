@@ -18,33 +18,43 @@ interface BurnDownChartProps {
 }
 
 export function BurnDownChart({ projects, tasks }: BurnDownChartProps) {
-  const data = useMemo(() => {
-    if (tasks.length === 0) return [];
+  const { data, todayLabel } = useMemo(() => {
+    if (tasks.length === 0) return { data: [], todayLabel: "" };
 
     const allDates = tasks.flatMap((t) => [new Date(t.start_date), new Date(t.end_date)]);
     const minDate = new Date(Math.min(...allDates.map((d) => d.getTime())));
     const maxDate = new Date(Math.max(...allDates.map((d) => d.getTime())));
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const formatDate = (d: Date) =>
+      d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
 
     // Generate weekly data points
     const points: { date: string; [key: string]: string | number }[] = [];
     const current = new Date(minDate);
     current.setHours(0, 0, 0, 0);
 
+    let closestLabel = "";
+    let closestDiff = Infinity;
+
     while (current <= maxDate) {
-      const point: { date: string; [key: string]: string | number } = {
-        date: current.toLocaleDateString("en-US", { month: "short", day: "numeric" }),
-      };
+      const label = formatDate(current);
+      const diff = Math.abs(current.getTime() - today.getTime());
+      if (diff < closestDiff) {
+        closestDiff = diff;
+        closestLabel = label;
+      }
+
+      const point: { date: string; [key: string]: string | number } = { date: label };
 
       for (const project of projects) {
         const projectTasks = tasks.filter((t) => t.project_id === project.id);
         if (projectTasks.length === 0) continue;
 
-        // Tasks not completed by this date = tasks that exist by this date and are not done
-        // Simulate: a task is "done" if its end_date <= current date AND status is Done
         const activeTasks = projectTasks.filter((t) => new Date(t.start_date) <= current);
         const notCompleted = activeTasks.filter((t) => {
           if (t.status === "Done") {
-            // Assume done tasks completed by their end_date
             return new Date(t.end_date) > current;
           }
           return true;
@@ -58,9 +68,13 @@ export function BurnDownChart({ projects, tasks }: BurnDownChartProps) {
     }
 
     // Add final point at maxDate
-    const finalPoint: { date: string; [key: string]: string | number } = {
-      date: maxDate.toLocaleDateString("en-US", { month: "short", day: "numeric" }),
-    };
+    const finalLabel = formatDate(maxDate);
+    const finalDiff = Math.abs(maxDate.getTime() - today.getTime());
+    if (finalDiff < closestDiff) {
+      closestLabel = finalLabel;
+    }
+
+    const finalPoint: { date: string; [key: string]: string | number } = { date: finalLabel };
     for (const project of projects) {
       const projectTasks = tasks.filter((t) => t.project_id === project.id);
       if (projectTasks.length === 0) continue;
@@ -69,7 +83,7 @@ export function BurnDownChart({ projects, tasks }: BurnDownChartProps) {
     }
     points.push(finalPoint);
 
-    return points;
+    return { data: points, todayLabel: closestLabel };
   }, [projects, tasks]);
 
   const projectNames = useMemo(
