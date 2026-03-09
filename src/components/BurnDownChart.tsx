@@ -35,27 +35,21 @@ export function BurnDownChart({ projects, tasks }: BurnDownChartProps) {
     const current = new Date(minDate);
     current.setHours(0, 0, 0, 0);
 
-    let closestLabel = "";
-    let closestDiff = Infinity;
+    const todayLabel = formatDate(today);
+    let todayInserted = false;
 
-    while (current <= maxDate) {
-      const label = formatDate(current);
-      const diff = Math.abs(current.getTime() - today.getTime());
-      if (diff < closestDiff) {
-        closestDiff = diff;
-        closestLabel = label;
-      }
-
+    const addPoint = (d: Date) => {
+      const label = formatDate(d);
       const point: { date: string; [key: string]: string | number } = { date: label };
 
       for (const project of projects) {
         const projectTasks = tasks.filter((t) => t.project_id === project.id);
         if (projectTasks.length === 0) continue;
 
-        const activeTasks = projectTasks.filter((t) => new Date(t.start_date) <= current);
+        const activeTasks = projectTasks.filter((t) => new Date(t.start_date) <= d);
         const notCompleted = activeTasks.filter((t) => {
           if (t.status === "Done") {
-            return new Date(t.end_date) > current;
+            return new Date(t.end_date) > d;
           }
           return true;
         }).length;
@@ -64,16 +58,28 @@ export function BurnDownChart({ projects, tasks }: BurnDownChartProps) {
       }
 
       points.push(point);
+    };
+
+    while (current <= maxDate) {
+      // Insert today's data point if we're about to pass it
+      if (!todayInserted && current.getTime() >= today.getTime() && today >= minDate && today <= maxDate) {
+        if (current.getTime() !== today.getTime()) {
+          addPoint(today);
+        }
+        todayInserted = true;
+      }
+      addPoint(current);
       current.setDate(current.getDate() + 7);
+    }
+
+    // If today is after all weekly points but before maxDate
+    if (!todayInserted && today >= minDate && today <= maxDate) {
+      addPoint(today);
+      todayInserted = true;
     }
 
     // Add final point at maxDate
     const finalLabel = formatDate(maxDate);
-    const finalDiff = Math.abs(maxDate.getTime() - today.getTime());
-    if (finalDiff < closestDiff) {
-      closestLabel = finalLabel;
-    }
-
     const finalPoint: { date: string; [key: string]: string | number } = { date: finalLabel };
     for (const project of projects) {
       const projectTasks = tasks.filter((t) => t.project_id === project.id);
@@ -83,7 +89,7 @@ export function BurnDownChart({ projects, tasks }: BurnDownChartProps) {
     }
     points.push(finalPoint);
 
-    return { data: points, todayLabel: closestLabel };
+    return { data: points, todayLabel: (today >= minDate && today <= maxDate) ? todayLabel : "" };
   }, [projects, tasks]);
 
   const projectNames = useMemo(
