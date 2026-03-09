@@ -80,30 +80,30 @@ const Dashboard = () => {
       <main className="container max-w-5xl mx-auto px-4 py-8 space-y-8">
         {projects.length > 0 && allTasks.length > 0 && (
           <div className="space-y-6">
+            <Card>
+              <CardContent className="py-4 px-5">
+                <h3 className="text-sm font-semibold text-foreground mb-3">Project Timeline</h3>
+                <ProjectGantt
+                  projects={projects}
+                  tasks={allTasks}
+                  onSelectProject={(id) => navigate(`/project/${id}`)}
+                />
+              </CardContent>
+            </Card>
             <div className="grid gap-6 lg:grid-cols-2">
-              <Card>
-                <CardContent className="py-4 px-5">
-                  <h3 className="text-sm font-semibold text-foreground mb-3">Project Timeline</h3>
-                  <ProjectGantt
-                    projects={projects}
-                    tasks={allTasks}
-                    onSelectProject={(id) => navigate(`/project/${id}`)}
-                  />
-                </CardContent>
-              </Card>
               <Card>
                 <CardContent className="py-4 px-5">
                   <h3 className="text-sm font-semibold text-foreground mb-3">Completion Overview</h3>
                   <CompletionChart projects={projects} tasks={allTasks} />
                 </CardContent>
               </Card>
+              <Card>
+                <CardContent className="py-4 px-5">
+                  <h3 className="text-sm font-semibold text-foreground mb-3">Burn-Down Chart</h3>
+                  <BurnDownChart projects={projects} tasks={allTasks} />
+                </CardContent>
+              </Card>
             </div>
-            <Card>
-              <CardContent className="py-4 px-5">
-                <h3 className="text-sm font-semibold text-foreground mb-3">Burn-Down Chart</h3>
-                <BurnDownChart projects={projects} tasks={allTasks} />
-              </CardContent>
-            </Card>
           </div>
         )}
 
