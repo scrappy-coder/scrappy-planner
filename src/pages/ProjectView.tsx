@@ -88,6 +88,20 @@ const ProjectView = () => {
     }
   };
 
+  const handleBulkSave = async (
+    updates: Array<{ id: string; changes: Partial<Omit<Task, "id" | "project_id">> }>,
+    deletedIds: string[]
+  ) => {
+    for (const id of deletedIds) {
+      await deleteTask(id);
+    }
+    for (const { id, changes } of updates) {
+      await updateTask(id, changes);
+    }
+    setBulkEditing(false);
+    refresh();
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b border-border bg-card">
