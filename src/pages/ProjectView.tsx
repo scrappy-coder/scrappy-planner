@@ -27,6 +27,7 @@ const ProjectView = () => {
   const [editingTask, setEditingTask] = useState<Task | undefined>();
   const [parentForSubtask, setParentForSubtask] = useState<Task | undefined>();
   const [selectedQuarter, setSelectedQuarter] = useState<FiscalQuarter>(getCurrentFiscalQuarter());
+  const [bulkEditing, setBulkEditing] = useState(false);
   const [loading, setLoading] = useState(true);
   const quarters = getAdjacentQuarters(2);
 
