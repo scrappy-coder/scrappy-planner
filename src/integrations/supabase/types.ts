@@ -36,7 +36,9 @@ export type Database = {
         Row: {
           created_at: string
           detail: string
+          effort: string
           end_date: string
+          fiscal_quarter: string
           id: string
           name: string
           parent_id: string | null
@@ -47,7 +49,9 @@ export type Database = {
         Insert: {
           created_at?: string
           detail?: string
+          effort?: string
           end_date: string
+          fiscal_quarter?: string
           id?: string
           name: string
           parent_id?: string | null
@@ -58,7 +62,9 @@ export type Database = {
         Update: {
           created_at?: string
           detail?: string
+          effort?: string
           end_date?: string
+          fiscal_quarter?: string
           id?: string
           name?: string
           parent_id?: string | null
