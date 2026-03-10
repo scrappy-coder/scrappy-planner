@@ -1,5 +1,17 @@
 export type TaskStatus = "Not Started" | "In Progress" | "Done" | "Blocked";
 
+export type EffortSize = "xs" | "s" | "m" | "l" | "xl";
+
+export const EFFORT_VALUES: Record<EffortSize, number> = {
+  xs: 1,
+  s: 2,
+  m: 3,
+  l: 5,
+  xl: 8,
+};
+
+export const EFFORT_SIZES: EffortSize[] = ["xs", "s", "m", "l", "xl"];
+
 export interface Task {
   id: string;
   project_id: string;
@@ -9,6 +21,8 @@ export interface Task {
   status: TaskStatus;
   detail: string;
   parent_id: string | null;
+  effort: EffortSize;
+  fiscal_quarter: string; // e.g. "Q1 FY2027"
 }
 
 export interface Project {

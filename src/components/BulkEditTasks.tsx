@@ -1,5 +1,6 @@
 import { useState, useCallback } from "react";
-import { Task, TaskStatus } from "@/lib/types";
+import { Task, TaskStatus, EffortSize, EFFORT_SIZES } from "@/lib/types";
+import { getAdjacentQuarters } from "@/lib/fiscal";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -8,6 +9,7 @@ import { Save, X, Loader2, CornerDownRight, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const STATUSES: TaskStatus[] = ["Not Started", "In Progress", "Done", "Blocked"];
+const QUARTERS = getAdjacentQuarters(4);
 
 interface BulkEditTasksProps {
   tasks: Task[];
@@ -50,6 +52,8 @@ export function BulkEditTasks({ tasks, onSave, onCancel }: BulkEditTasksProps) {
         if (task.end_date !== orig.end_date) changes.end_date = task.end_date;
         if (task.status !== orig.status) changes.status = task.status;
         if (task.detail !== orig.detail) changes.detail = task.detail;
+        if (task.effort !== orig.effort) changes.effort = task.effort;
+        if (task.fiscal_quarter !== orig.fiscal_quarter) changes.fiscal_quarter = task.fiscal_quarter;
 
         if (Object.keys(changes).length > 0) {
           updates.push({ id: task.id, changes });
@@ -106,6 +110,36 @@ export function BulkEditTasks({ tasks, onSave, onCancel }: BulkEditTasksProps) {
         </Select>
       </TableCell>
       <TableCell className="py-1.5 px-2">
+        <Select
+          value={task.effort}
+          onValueChange={(v) => updateField(task.id, "effort", v)}
+        >
+          <SelectTrigger className="h-8 text-xs w-[70px]">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {EFFORT_SIZES.map((s) => (
+              <SelectItem key={s} value={s}>{s.toUpperCase()}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </TableCell>
+      <TableCell className="py-1.5 px-2">
+        <Select
+          value={task.fiscal_quarter || ""}
+          onValueChange={(v) => updateField(task.id, "fiscal_quarter", v)}
+        >
+          <SelectTrigger className="h-8 text-xs w-[110px]">
+            <SelectValue placeholder="Quarter" />
+          </SelectTrigger>
+          <SelectContent>
+            {QUARTERS.map((q) => (
+              <SelectItem key={q.label} value={q.label}>{q.label}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </TableCell>
+      <TableCell className="py-1.5 px-2">
         <Input
           value={task.detail}
           onChange={(e) => updateField(task.id, "detail", e.target.value)}
@@ -156,6 +190,8 @@ export function BulkEditTasks({ tasks, onSave, onCancel }: BulkEditTasksProps) {
               <TableHead className="text-xs py-2 px-2">Start</TableHead>
               <TableHead className="text-xs py-2 px-2">End</TableHead>
               <TableHead className="text-xs py-2 px-2">Status</TableHead>
+              <TableHead className="text-xs py-2 px-2">Effort</TableHead>
+              <TableHead className="text-xs py-2 px-2">Quarter</TableHead>
               <TableHead className="text-xs py-2 px-2 min-w-[150px]">Detail</TableHead>
               <TableHead className="text-xs py-2 px-2 w-10"></TableHead>
             </TableRow>

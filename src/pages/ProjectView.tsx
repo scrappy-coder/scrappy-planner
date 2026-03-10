@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Project, Task, TaskStatus } from "@/lib/types";
+import { Project, Task, TaskStatus, EffortSize } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { getProjects, updateProject, getTasksByProject, createTask, updateTask, deleteTask } from "@/lib/store";
 import { assessRisk, getProjectSummary } from "@/lib/risk";
@@ -71,11 +71,11 @@ const ProjectView = () => {
     refresh();
   };
 
-  const handleSaveTask = async (data: { name: string; start_date: string; end_date: string; status: TaskStatus; detail: string; parent_id?: string | null }) => {
+  const handleSaveTask = async (data: { name: string; start_date: string; end_date: string; status: TaskStatus; detail: string; parent_id?: string | null; effort: EffortSize; fiscal_quarter: string }) => {
     if (editingTask) {
       await updateTask(editingTask.id, data);
     } else {
-      await createTask({ ...data, project_id: project.id, parent_id: data.parent_id ?? null });
+      await createTask({ ...data, project_id: project.id, parent_id: data.parent_id ?? null, effort: data.effort, fiscal_quarter: data.fiscal_quarter });
     }
     setEditingTask(undefined);
     refresh();
@@ -278,6 +278,8 @@ function TaskRow({
         <div className="flex items-center gap-2 mb-1">
           <span className={cn("text-sm font-medium text-foreground truncate", isSubtask && "text-xs")}>{task.name}</span>
           <StatusBadge status={task.status} />
+          <span className="text-[10px] font-medium text-muted-foreground uppercase">{task.effort}</span>
+          {task.fiscal_quarter && <span className="text-[10px] text-muted-foreground">{task.fiscal_quarter}</span>}
           {isOverdue && (
             <span className="text-[10px] font-medium text-destructive">OVERDUE</span>
           )}

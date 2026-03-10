@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Task, TaskStatus } from "@/lib/types";
+import { Task, TaskStatus, EffortSize, EFFORT_SIZES } from "@/lib/types";
+import { getAdjacentQuarters } from "@/lib/fiscal";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -10,10 +11,12 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 interface TaskFormProps {
   open: boolean;
   onClose: () => void;
-  onSave: (task: { name: string; start_date: string; end_date: string; status: TaskStatus; detail: string; parent_id?: string | null }) => void;
+  onSave: (task: { name: string; start_date: string; end_date: string; status: TaskStatus; detail: string; parent_id?: string | null; effort: EffortSize; fiscal_quarter: string }) => void;
   initialData?: Task;
   parentTask?: Task;
 }
+
+const quarters = getAdjacentQuarters(4);
 
 export function TaskForm({ open, onClose, onSave, initialData, parentTask }: TaskFormProps) {
   const [name, setName] = useState(initialData?.name ?? "");
@@ -21,6 +24,8 @@ export function TaskForm({ open, onClose, onSave, initialData, parentTask }: Tas
   const [endDate, setEndDate] = useState(initialData?.end_date ?? parentTask?.end_date ?? "");
   const [status, setStatus] = useState<TaskStatus>(initialData?.status ?? "Not Started");
   const [detail, setDetail] = useState(initialData?.detail ?? "");
+  const [effort, setEffort] = useState<EffortSize>(initialData?.effort ?? "m");
+  const [fiscalQuarter, setFiscalQuarter] = useState(initialData?.fiscal_quarter ?? quarters[4]?.label ?? "");
   const [error, setError] = useState("");
 
   const handleSave = () => {
@@ -35,6 +40,8 @@ export function TaskForm({ open, onClose, onSave, initialData, parentTask }: Tas
       status,
       detail: detail.trim(),
       parent_id: parentTask?.id ?? initialData?.parent_id ?? null,
+      effort,
+      fiscal_quarter: fiscalQuarter,
     });
     onClose();
   };
@@ -67,15 +74,39 @@ export function TaskForm({ open, onClose, onSave, initialData, parentTask }: Tas
               <Input type="date" value={endDate} onChange={(e) => { setEndDate(e.target.value); setError(""); }} />
             </div>
           </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1.5">
+              <Label>Status</Label>
+              <Select value={status} onValueChange={(v) => setStatus(v as TaskStatus)}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Not Started">Not Started</SelectItem>
+                  <SelectItem value="In Progress">In Progress</SelectItem>
+                  <SelectItem value="Done">Done</SelectItem>
+                  <SelectItem value="Blocked">Blocked</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1.5">
+              <Label>Effort</Label>
+              <Select value={effort} onValueChange={(v) => setEffort(v as EffortSize)}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {EFFORT_SIZES.map((s) => (
+                    <SelectItem key={s} value={s}>{s.toUpperCase()}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
           <div className="space-y-1.5">
-            <Label>Status</Label>
-            <Select value={status} onValueChange={(v) => setStatus(v as TaskStatus)}>
+            <Label>Quarter</Label>
+            <Select value={fiscalQuarter} onValueChange={setFiscalQuarter}>
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="Not Started">Not Started</SelectItem>
-                <SelectItem value="In Progress">In Progress</SelectItem>
-                <SelectItem value="Done">Done</SelectItem>
-                <SelectItem value="Blocked">Blocked</SelectItem>
+                {quarters.map((q) => (
+                  <SelectItem key={q.label} value={q.label}>{q.label}</SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
