@@ -278,6 +278,8 @@ function TaskRow({
         <div className="flex items-center gap-2 mb-1">
           <span className={cn("text-sm font-medium text-foreground truncate", isSubtask && "text-xs")}>{task.name}</span>
           <StatusBadge status={task.status} />
+          <span className="text-[10px] font-medium text-muted-foreground uppercase">{task.effort}</span>
+          {task.fiscal_quarter && <span className="text-[10px] text-muted-foreground">{task.fiscal_quarter}</span>}
           {isOverdue && (
             <span className="text-[10px] font-medium text-destructive">OVERDUE</span>
           )}
