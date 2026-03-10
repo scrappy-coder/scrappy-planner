@@ -66,6 +66,8 @@ export async function createTask(task: Omit<Task, "id">): Promise<Task> {
       status: task.status,
       detail: task.detail,
       parent_id: task.parent_id ?? null,
+      effort: task.effort ?? "m",
+      fiscal_quarter: task.fiscal_quarter ?? "",
     })
     .select()
     .single();
