@@ -71,11 +71,11 @@ const ProjectView = () => {
     refresh();
   };
 
-  const handleSaveTask = async (data: { name: string; start_date: string; end_date: string; status: TaskStatus; detail: string; parent_id?: string | null }) => {
+  const handleSaveTask = async (data: { name: string; start_date: string; end_date: string; status: TaskStatus; detail: string; parent_id?: string | null; effort: EffortSize; fiscal_quarter: string }) => {
     if (editingTask) {
       await updateTask(editingTask.id, data);
     } else {
-      await createTask({ ...data, project_id: project.id, parent_id: data.parent_id ?? null });
+      await createTask({ ...data, project_id: project.id, parent_id: data.parent_id ?? null, effort: data.effort, fiscal_quarter: data.fiscal_quarter });
     }
     setEditingTask(undefined);
     refresh();
