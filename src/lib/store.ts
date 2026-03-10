@@ -91,16 +91,18 @@ export async function deleteTask(id: string) {
   if (error) throw error;
 }
 
-function mapTask(row: { id: string; project_id: string; name: string; start_date: string; end_date: string; status: string; detail: string; parent_id?: string | null }): Task {
+function mapTask(row: Record<string, unknown>): Task {
   return {
-    id: row.id,
-    project_id: row.project_id,
-    name: row.name,
-    start_date: row.start_date,
-    end_date: row.end_date,
+    id: row.id as string,
+    project_id: row.project_id as string,
+    name: row.name as string,
+    start_date: row.start_date as string,
+    end_date: row.end_date as string,
     status: row.status as TaskStatus,
-    detail: row.detail,
-    parent_id: row.parent_id ?? null,
+    detail: (row.detail as string) ?? "",
+    parent_id: (row.parent_id as string) ?? null,
+    effort: ((row.effort as string) ?? "m") as import("./types").EffortSize,
+    fiscal_quarter: (row.fiscal_quarter as string) ?? "",
   };
 }
 
