@@ -43,23 +43,28 @@ export function CompletionChart({ projects, tasks }: CompletionChartProps) {
     );
   }
 
+  const barHeight = Math.max(220, data.length * 50);
+
   return (
-    <div className="w-full h-[220px]">
+    <div className="w-full" style={{ height: barHeight }}>
       <ResponsiveContainer width="100%" height="100%">
-        <BarChart data={data} margin={{ top: 8, right: 12, left: -8, bottom: 4 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
+        <BarChart data={data} layout="vertical" margin={{ top: 4, right: 30, left: 4, bottom: 4 }}>
+          <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" horizontal={false} />
           <XAxis
-            dataKey="name"
-            tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }}
-            axisLine={{ stroke: "hsl(var(--border))" }}
-            tickLine={false}
-          />
-          <YAxis
+            type="number"
             domain={[0, 100]}
             tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }}
             axisLine={false}
             tickLine={false}
             tickFormatter={(v) => `${v}%`}
+          />
+          <YAxis
+            type="category"
+            dataKey="name"
+            width={120}
+            tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }}
+            axisLine={{ stroke: "hsl(var(--border))" }}
+            tickLine={false}
           />
           <Tooltip
             cursor={{ fill: "hsl(var(--accent))" }}
@@ -75,7 +80,7 @@ export function CompletionChart({ projects, tasks }: CompletionChartProps) {
             ]}
             labelFormatter={() => ""}
           />
-          <Bar dataKey="completion" radius={[4, 4, 0, 0]} maxBarSize={48}>
+          <Bar dataKey="completion" radius={[0, 4, 4, 0]} barSize={24}>
             {data.map((entry, i) => (
               <Cell
                 key={i}
