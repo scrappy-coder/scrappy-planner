@@ -243,6 +243,7 @@ const ProjectView = () => {
       </main>
 
       <TaskForm
+        key={editingTask?.id ?? parentForSubtask?.id ?? "new"}
         open={showTaskForm}
         onClose={() => { setShowTaskForm(false); setEditingTask(undefined); setParentForSubtask(undefined); }}
         onSave={handleSaveTask}
