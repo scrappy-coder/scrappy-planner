@@ -47,7 +47,7 @@ export function CompletionChart({ projects, tasks }: CompletionChartProps) {
     );
   }
 
-  const barHeight = Math.max(220, data.length * 50);
+  const barHeight = Math.max(300, data.length * 60);
 
   return (
     <div className="w-full" style={{ height: barHeight }}>

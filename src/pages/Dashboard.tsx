@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { Project, Task } from "@/lib/types";
+import { Project, Task, EFFORT_VALUES, EffortSize } from "@/lib/types";
 import { getProjects, createProject, deleteProject, getTasks, seedData, updateProject } from "@/lib/store";
 import { assessRisk } from "@/lib/risk";
 import { getAdjacentQuarters } from "@/lib/fiscal";
@@ -14,6 +14,49 @@ import { Plus, FolderOpen, Trash2, LayoutDashboard, Loader2 } from "lucide-react
 import { ProjectGantt } from "@/components/ProjectGantt";
 import { CompletionChart } from "@/components/CompletionChart";
 import { BurnDownChart } from "@/components/BurnDownChart";
+
+function SummaryTiles({ projects, tasks }: { projects: Project[]; tasks: Task[] }) {
+  const startedProjects = projects.filter((p) => {
+    const pTasks = tasks.filter((t) => t.project_id === p.id);
+    return pTasks.some((t) => t.status !== "Not Started");
+  }).length;
+
+  const totalEffort = tasks.reduce((s, t) => s + (EFFORT_VALUES[t.effort as EffortSize] ?? 3), 0);
+  const doneEffort = tasks.filter((t) => t.status === "Done").reduce((s, t) => s + (EFFORT_VALUES[t.effort as EffortSize] ?? 3), 0);
+  const effortPct = totalEffort > 0 ? Math.round((doneEffort / totalEffort) * 100) : 0;
+
+  const doneCount = tasks.filter((t) => t.status === "Done").length;
+  const taskPct = tasks.length > 0 ? Math.round((doneCount / tasks.length) * 100) : 0;
+
+  const atRiskCount = tasks.filter((t) => {
+    if (t.status === "Done") return false;
+    const end = new Date(t.end_date);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return end < today || t.status === "Blocked";
+  }).length;
+
+  const tiles = [
+    { label: "Projects Started", value: startedProjects, sub: `of ${projects.length}` },
+    { label: "Effort Completion", value: `${effortPct}%`, sub: `(${totalEffort} pts)` },
+    { label: "Task Completion", value: `${taskPct}%`, sub: `(${tasks.length} tasks)` },
+    { label: "Tasks at Risk", value: atRiskCount, sub: "overdue / blocked", alert: atRiskCount > 0 },
+  ];
+
+  return (
+    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      {tiles.map((t) => (
+        <Card key={t.label}>
+          <CardContent className="py-4 px-5">
+            <p className="text-xs text-muted-foreground mb-1">{t.label}</p>
+            <p className={`text-2xl font-bold ${t.alert ? "text-destructive" : "text-foreground"}`}>{t.value}</p>
+            <p className="text-xs text-muted-foreground">{t.sub}</p>
+          </CardContent>
+        </Card>
+      ))}
+    </div>
+  );
+}
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -79,6 +122,9 @@ const Dashboard = () => {
       </header>
 
       <main className="container max-w-5xl mx-auto px-4 py-8 space-y-8">
+        {projects.length > 0 && (
+          <SummaryTiles projects={projects} tasks={allTasks} />
+        )}
         {projects.length > 0 && allTasks.length > 0 && (
           <div className="space-y-6">
             <Card>
@@ -91,20 +137,18 @@ const Dashboard = () => {
                 />
               </CardContent>
             </Card>
-            <div className="grid gap-6 lg:grid-cols-2">
-              <Card>
-                <CardContent className="py-4 px-5">
-                  <h3 className="text-sm font-semibold text-foreground mb-3">Completion Overview</h3>
-                  <CompletionChart projects={projects} tasks={allTasks} />
-                </CardContent>
-              </Card>
-              <Card>
-                <CardContent className="py-4 px-5">
-                  <h3 className="text-sm font-semibold text-foreground mb-3">Burn-Down Chart</h3>
-                  <BurnDownChart projects={projects} tasks={allTasks} />
-                </CardContent>
-              </Card>
-            </div>
+            <Card>
+              <CardContent className="py-4 px-5">
+                <h3 className="text-sm font-semibold text-foreground mb-3">Completion Overview</h3>
+                <CompletionChart projects={projects} tasks={allTasks} />
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="py-4 px-5">
+                <h3 className="text-sm font-semibold text-foreground mb-3">Burn-Down Chart</h3>
+                <BurnDownChart projects={projects} tasks={allTasks} />
+              </CardContent>
+            </Card>
           </div>
         )}
 
