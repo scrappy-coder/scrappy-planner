@@ -137,18 +137,20 @@ const Dashboard = () => {
                 />
               </CardContent>
             </Card>
-            <Card>
-              <CardContent className="py-4 px-5">
-                <h3 className="text-sm font-semibold text-foreground mb-3">Completion Overview</h3>
-                <CompletionChart projects={projects} tasks={allTasks} />
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="py-4 px-5">
-                <h3 className="text-sm font-semibold text-foreground mb-3">Burn-Down Chart</h3>
-                <BurnDownChart projects={projects} tasks={allTasks} />
-              </CardContent>
-            </Card>
+            <div className="grid gap-6 lg:grid-cols-2">
+              <Card>
+                <CardContent className="py-4 px-5">
+                  <h3 className="text-sm font-semibold text-foreground mb-3">Completion Overview</h3>
+                  <CompletionChart projects={projects} tasks={allTasks} />
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="py-4 px-5">
+                  <h3 className="text-sm font-semibold text-foreground mb-3">Burn-Down Chart</h3>
+                  <BurnDownChart projects={projects} tasks={allTasks} />
+                </CardContent>
+              </Card>
+            </div>
           </div>
         )}
 
