@@ -32,7 +32,7 @@ export interface Project {
   fiscal_quarter: string;
 }
 
-export type RiskLevel = "On Track" | "At Risk";
+export type RiskLevel = "On Track" | "Behind Schedule" | "At Risk";
 
 export interface RiskInfo {
   level: RiskLevel;
