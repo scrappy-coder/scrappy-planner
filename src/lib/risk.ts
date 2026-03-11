@@ -56,8 +56,10 @@ export function getProjectSummary(tasks: Task[]): ProjectSummary {
 
   const behindSchedule = tasks.filter((t) => {
     if (t.status === "Done") return false;
+    const start = parseLocalDate(t.start_date);
     const end = parseLocalDate(t.end_date);
-    return end < today && t.status === "In Progress";
+    // Past start date but not started, or past end date but still in progress
+    return (start < today && t.status === "Not Started") || (end < today && t.status === "In Progress");
   }).length;
 
   const futureDates = tasks
