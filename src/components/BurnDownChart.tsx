@@ -26,6 +26,39 @@ function getEffortValue(effort: string): number {
   return EFFORT_VALUES[effort as EffortSize] ?? 3;
 }
 
+function getQuarterRangeFromLabel(label: string): { start: Date; end: Date } | null {
+  const match = /^Q([1-4]) FY(\d{4})$/.exec(label);
+  if (!match) return null;
+
+  const quarter = Number(match[1]);
+  const fiscalYear = Number(match[2]);
+
+  switch (quarter) {
+    case 1:
+      return {
+        start: new Date(fiscalYear - 1, 1, 1), // Feb 1 (previous calendar year)
+        end: new Date(fiscalYear - 1, 4, 0), // Apr 30
+      };
+    case 2:
+      return {
+        start: new Date(fiscalYear - 1, 4, 1), // May 1
+        end: new Date(fiscalYear - 1, 7, 0), // Jul 31
+      };
+    case 3:
+      return {
+        start: new Date(fiscalYear - 1, 7, 1), // Aug 1
+        end: new Date(fiscalYear - 1, 10, 0), // Oct 31
+      };
+    case 4:
+      return {
+        start: new Date(fiscalYear - 1, 10, 1), // Nov 1 (previous calendar year)
+        end: new Date(fiscalYear, 1, 0), // Jan 31
+      };
+    default:
+      return null;
+  }
+}
+
 export function BurnDownChart({ tasks }: BurnDownChartProps) {
   // Default to the latest quarter that has tasks
   const defaultQuarter = useMemo(() => {
