@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { Project, Task } from "@/lib/types";
+import { getProjectColor } from "@/lib/colors";
 import {
   BarChart,
   Bar,
@@ -17,6 +18,8 @@ interface CompletionChartProps {
 }
 
 export function CompletionChart({ projects, tasks }: CompletionChartProps) {
+  const projectIds = useMemo(() => projects.map((p) => p.id), [projects]);
+
   const data = useMemo(() => {
     return projects
       .map((p) => {
@@ -25,6 +28,7 @@ export function CompletionChart({ projects, tasks }: CompletionChartProps) {
         const done = projectTasks.filter((t) => t.status === "Done").length;
         const pct = Math.round((done / projectTasks.length) * 100);
         return {
+          id: p.id,
           name: p.name.length > 18 ? p.name.slice(0, 16) + "…" : p.name,
           fullName: p.name,
           completion: pct,
@@ -32,7 +36,7 @@ export function CompletionChart({ projects, tasks }: CompletionChartProps) {
           total: projectTasks.length,
         };
       })
-      .filter(Boolean) as { name: string; fullName: string; completion: number; done: number; total: number }[];
+      .filter(Boolean) as { id: string; name: string; fullName: string; completion: number; done: number; total: number }[];
   }, [projects, tasks]);
 
   if (data.length === 0) {
@@ -48,23 +52,25 @@ export function CompletionChart({ projects, tasks }: CompletionChartProps) {
   return (
     <div className="w-full" style={{ height: barHeight }}>
       <ResponsiveContainer width="100%" height="100%">
-        <BarChart data={data} layout="vertical" margin={{ top: 4, right: 30, left: 4, bottom: 4 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" horizontal={false} />
+        <BarChart data={data} layout="horizontal" margin={{ top: 4, right: 10, left: 4, bottom: 40 }}>
+          <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
           <XAxis
+            type="category"
+            dataKey="name"
+            tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }}
+            axisLine={{ stroke: "hsl(var(--border))" }}
+            tickLine={false}
+            angle={-30}
+            textAnchor="end"
+            height={60}
+          />
+          <YAxis
             type="number"
             domain={[0, 100]}
             tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }}
             axisLine={false}
             tickLine={false}
             tickFormatter={(v) => `${v}%`}
-          />
-          <YAxis
-            type="category"
-            dataKey="name"
-            width={120}
-            tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }}
-            axisLine={{ stroke: "hsl(var(--border))" }}
-            tickLine={false}
           />
           <Tooltip
             cursor={{ fill: "hsl(var(--accent))" }}
@@ -80,15 +86,11 @@ export function CompletionChart({ projects, tasks }: CompletionChartProps) {
             ]}
             labelFormatter={() => ""}
           />
-          <Bar dataKey="completion" radius={[0, 4, 4, 0]} barSize={24}>
-            {data.map((entry, i) => (
+          <Bar dataKey="completion" radius={[4, 4, 0, 0]} barSize={32}>
+            {data.map((entry) => (
               <Cell
-                key={i}
-                fill={
-                  entry.completion === 100
-                    ? "hsl(var(--status-done))"
-                    : "hsl(var(--primary))"
-                }
+                key={entry.id}
+                fill={getProjectColor(entry.id, projectIds)}
               />
             ))}
           </Bar>
