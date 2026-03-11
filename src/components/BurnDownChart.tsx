@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Project, Task, EFFORT_VALUES, EffortSize } from "@/lib/types";
 import { getAdjacentQuarters } from "@/lib/fiscal";
 import { FiscalQuarter } from "@/lib/types";
@@ -38,6 +38,13 @@ export function BurnDownChart({ tasks }: BurnDownChartProps) {
   }, [tasks]);
 
   const [selectedQuarter, setSelectedQuarter] = useState<string>(defaultQuarter);
+  const [hasManualQuarterSelection, setHasManualQuarterSelection] = useState(false);
+
+  useEffect(() => {
+    if (!hasManualQuarterSelection) {
+      setSelectedQuarter(defaultQuarter);
+    }
+  }, [defaultQuarter, hasManualQuarterSelection]);
 
   const selectedQ = useMemo(
     () => ALL_QUARTERS.find((q) => q.label === selectedQuarter),
@@ -46,12 +53,6 @@ export function BurnDownChart({ tasks }: BurnDownChartProps) {
 
   const filteredTasks = useMemo(() => {
     return tasks.filter((t) => t.fiscal_quarter === selectedQuarter);
-  }, [tasks, selectedQuarter]);
-
-  const quarterLabels = useMemo(() => {
-    const labels = new Set(tasks.map((t) => t.fiscal_quarter).filter(Boolean));
-    // Show all quarters but highlight ones with tasks
-    return ALL_QUARTERS.filter((q) => labels.has(q.label) || q.label === selectedQuarter);
   }, [tasks, selectedQuarter]);
 
   const { data, todayKey } = useMemo(() => {
@@ -100,21 +101,16 @@ export function BurnDownChart({ tasks }: BurnDownChartProps) {
     const numSprints = Math.max(1, Math.ceil(totalDays / SPRINT_DAYS));
     const effortPerSprint = startingEffort / numSprints;
 
-    // Sprint anchor requested: Mar 9 (falls back to quarter start if outside range)
-    const mar9Anchor = new Date(minDate.getFullYear(), 2, 9);
-    mar9Anchor.setHours(0, 0, 0, 0);
-    const sprintStart = mar9Anchor >= minDate && mar9Anchor <= maxDate ? mar9Anchor : minDate;
-
     // Daily sampling so exact completion dates (e.g. Mar 6) are visible
     const points: Array<{ dateKey: string; Actual: number; Ideal: number }> = [];
     const cursor = new Date(minDate);
 
     while (cursor <= maxDate) {
-      const daysSinceSprintStart = Math.max(
+      const daysElapsed = Math.max(
         0,
-        Math.floor((cursor.getTime() - sprintStart.getTime()) / (1000 * 60 * 60 * 24))
+        Math.floor((cursor.getTime() - minDate.getTime()) / (1000 * 60 * 60 * 24))
       );
-      const sprintsCompleted = Math.floor(daysSinceSprintStart / SPRINT_DAYS);
+      const sprintsCompleted = Math.floor(daysElapsed / SPRINT_DAYS);
 
       const ideal = Math.max(
         0,
@@ -137,7 +133,13 @@ export function BurnDownChart({ tasks }: BurnDownChartProps) {
   return (
     <div className="space-y-3">
       <div className="flex justify-end">
-        <Select value={selectedQuarter} onValueChange={setSelectedQuarter}>
+        <Select
+          value={selectedQuarter}
+          onValueChange={(value) => {
+            setHasManualQuarterSelection(true);
+            setSelectedQuarter(value);
+          }}
+        >
           <SelectTrigger className="w-36 h-8 text-xs">
             <SelectValue />
           </SelectTrigger>
@@ -210,7 +212,7 @@ export function BurnDownChart({ tasks }: BurnDownChartProps) {
               />
             )}
             <Line
-              type="monotone"
+              type="linear"
               dataKey="Ideal"
               stroke="hsl(var(--muted-foreground))"
               strokeWidth={2}
@@ -218,7 +220,7 @@ export function BurnDownChart({ tasks }: BurnDownChartProps) {
               dot={false}
             />
             <Line
-              type="monotone"
+              type="stepAfter"
               dataKey="Actual"
               stroke="hsl(var(--chart-1))"
               strokeWidth={2}
