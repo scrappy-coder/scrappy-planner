@@ -106,7 +106,13 @@ export function BurnDownChart({ tasks }: BurnDownChartProps) {
 
       // Actual: remaining effort (tasks not yet Done by this date)
       const remaining = filteredTasks.reduce((sum, t) => {
-        if (t.status === "Done" && new Date(t.end_date) <= d) return sum;
+        if (t.status === "Done") {
+          // Parse end_date as local date to match sampling dates
+          const [ey, em, ed] = t.end_date.split("-").map(Number);
+          const endLocal = new Date(ey, em - 1, ed);
+          endLocal.setHours(0, 0, 0, 0);
+          if (endLocal <= d) return sum;
+        }
         return sum + getEffortValue(t.effort);
       }, 0);
 
