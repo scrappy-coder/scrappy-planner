@@ -107,39 +107,5 @@ function mapTask(row: Record<string, unknown>): Task {
 }
 
 export async function seedData() {
-  const { data: existing } = await supabase.from("projects").select("id").limit(1);
-  if (existing && existing.length > 0) return;
-
-  const today = new Date();
-  const y = today.getFullYear();
-  const m = today.getMonth();
-
-  const { data: p1 } = await supabase.from("projects").insert({ name: "Website Redesign" }).select().single();
-  const { data: p2 } = await supabase.from("projects").insert({ name: "Mobile App Launch" }).select().single();
-  const { data: p3 } = await supabase.from("projects").insert({ name: "Q1 Marketing Campaign" }).select().single();
-
-  if (!p1 || !p2 || !p3) return;
-
-  const fmt = (y: number, m: number, d: number) => {
-    const date = new Date(y, m, d);
-    return date.toISOString().split("T")[0];
-  };
-
-  await supabase.from("tasks").insert([
-    { project_id: p1.id, name: "Design mockups", start_date: fmt(y, m - 1, 5), end_date: fmt(y, m - 1, 20), status: "Done", detail: "Create wireframes and high-fidelity mockups" },
-    { project_id: p1.id, name: "Frontend development", start_date: fmt(y, m - 1, 21), end_date: fmt(y, m, 15), status: "In Progress", detail: "Build React components and pages" },
-    { project_id: p1.id, name: "Backend API updates", start_date: fmt(y, m, 1), end_date: fmt(y, m, 20), status: "Not Started", detail: "Update REST endpoints for new design" },
-    { project_id: p1.id, name: "QA testing", start_date: fmt(y, m, 16), end_date: fmt(y, m + 1, 5), status: "Not Started", detail: "End-to-end testing and bug fixes" },
-    { project_id: p1.id, name: "Content migration", start_date: fmt(y, m - 1, 25), end_date: fmt(y, m, -5), status: "In Progress", detail: "Migrate blog posts and pages to new CMS" },
-
-    { project_id: p2.id, name: "UI/UX design", start_date: fmt(y, m - 1, 1), end_date: fmt(y, m, -10), status: "Done", detail: "Design all app screens" },
-    { project_id: p2.id, name: "Core feature development", start_date: fmt(y, m - 1, 15), end_date: fmt(y, m, -3), status: "In Progress", detail: "Build authentication, feed, and profile" },
-    { project_id: p2.id, name: "Push notifications", start_date: fmt(y, m, 1), end_date: fmt(y, m, 10), status: "Blocked", detail: "Waiting on Firebase configuration from DevOps" },
-    { project_id: p2.id, name: "App store submission", start_date: fmt(y, m, 15), end_date: fmt(y, m + 1, 1), status: "Not Started", detail: "Prepare screenshots, descriptions, and submit" },
-
-    { project_id: p3.id, name: "Campaign strategy", start_date: fmt(y, m - 2, 15), end_date: fmt(y, m - 2, 28), status: "Done", detail: "Define target audience and channels" },
-    { project_id: p3.id, name: "Creative assets", start_date: fmt(y, m - 1, 1), end_date: fmt(y, m - 1, 15), status: "Done", detail: "Design banners, social posts, and email templates" },
-    { project_id: p3.id, name: "Campaign launch", start_date: fmt(y, m, 1), end_date: fmt(y, m, 5), status: "In Progress", detail: "Deploy ads and send email blasts" },
-    { project_id: p3.id, name: "Performance tracking", start_date: fmt(y, m, 5), end_date: fmt(y, m + 1, 1), status: "Not Started", detail: "Monitor KPIs and adjust spend" },
-  ]);
+  // No-op: seed data removed
 }
