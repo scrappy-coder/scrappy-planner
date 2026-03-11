@@ -212,7 +212,7 @@ export function BurnDownChart({ tasks }: BurnDownChartProps) {
               />
             )}
             <Line
-              type="monotone"
+              type="linear"
               dataKey="Ideal"
               stroke="hsl(var(--muted-foreground))"
               strokeWidth={2}
@@ -220,7 +220,7 @@ export function BurnDownChart({ tasks }: BurnDownChartProps) {
               dot={false}
             />
             <Line
-              type="monotone"
+              type="stepAfter"
               dataKey="Actual"
               stroke="hsl(var(--chart-1))"
               strokeWidth={2}
