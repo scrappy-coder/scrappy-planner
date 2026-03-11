@@ -1,4 +1,5 @@
 import { Task, RiskInfo, ProjectSummary } from "./types";
+import { parseLocalDate } from "./utils";
 
 export function assessRisk(tasks: Task[]): RiskInfo {
   if (tasks.length === 0) return { level: "On Track", reasons: [] };
@@ -12,7 +13,7 @@ export function assessRisk(tasks: Task[]): RiskInfo {
 
   // a) Tasks with end date in the past and not Done
   const overdueTasks = tasks.filter((t) => {
-    const end = new Date(t.end_date);
+    const end = parseLocalDate(t.end_date);
     return end < today && t.status !== "Done";
   });
 
@@ -23,7 +24,7 @@ export function assessRisk(tasks: Task[]): RiskInfo {
   // b) Blocked task whose end date is within 14 days or already passed
   const blockedUrgent = tasks.filter((t) => {
     if (t.status !== "Blocked") return false;
-    const end = new Date(t.end_date);
+    const end = parseLocalDate(t.end_date);
     return end <= in14Days;
   });
 
