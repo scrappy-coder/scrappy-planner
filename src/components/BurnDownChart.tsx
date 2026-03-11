@@ -101,21 +101,16 @@ export function BurnDownChart({ tasks }: BurnDownChartProps) {
     const numSprints = Math.max(1, Math.ceil(totalDays / SPRINT_DAYS));
     const effortPerSprint = startingEffort / numSprints;
 
-    // Sprint anchor requested: Mar 9 (falls back to quarter start if outside range)
-    const mar9Anchor = new Date(minDate.getFullYear(), 2, 9);
-    mar9Anchor.setHours(0, 0, 0, 0);
-    const sprintStart = mar9Anchor >= minDate && mar9Anchor <= maxDate ? mar9Anchor : minDate;
-
     // Daily sampling so exact completion dates (e.g. Mar 6) are visible
     const points: Array<{ dateKey: string; Actual: number; Ideal: number }> = [];
     const cursor = new Date(minDate);
 
     while (cursor <= maxDate) {
-      const daysSinceSprintStart = Math.max(
+      const daysElapsed = Math.max(
         0,
-        Math.floor((cursor.getTime() - sprintStart.getTime()) / (1000 * 60 * 60 * 24))
+        Math.floor((cursor.getTime() - minDate.getTime()) / (1000 * 60 * 60 * 24))
       );
-      const sprintsCompleted = Math.floor(daysSinceSprintStart / SPRINT_DAYS);
+      const sprintsCompleted = Math.floor(daysElapsed / SPRINT_DAYS);
 
       const ideal = Math.max(
         0,
