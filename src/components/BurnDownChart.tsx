@@ -133,7 +133,13 @@ export function BurnDownChart({ tasks }: BurnDownChartProps) {
   return (
     <div className="space-y-3">
       <div className="flex justify-end">
-        <Select value={selectedQuarter} onValueChange={setSelectedQuarter}>
+        <Select
+          value={selectedQuarter}
+          onValueChange={(value) => {
+            setHasManualQuarterSelection(true);
+            setSelectedQuarter(value);
+          }}
+        >
           <SelectTrigger className="w-36 h-8 text-xs">
             <SelectValue />
           </SelectTrigger>
