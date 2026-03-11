@@ -10,10 +10,55 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, FolderOpen, Trash2, LayoutDashboard, Loader2 } from "lucide-react";
+import { Plus, FolderOpen, Trash2, LayoutDashboard, Loader2, AlertTriangle } from "lucide-react";
 import { ProjectGantt } from "@/components/ProjectGantt";
 import { CompletionChart } from "@/components/CompletionChart";
 import { BurnDownChart } from "@/components/BurnDownChart";
+import { EFFORT_VALUES, EffortSize, Task as TaskType, Project as ProjectType } from "@/lib/types";
+import { assessRisk } from "@/lib/risk";
+
+function SummaryTiles({ projects, tasks }: { projects: ProjectType[]; tasks: TaskType[] }) {
+  const startedProjects = projects.filter((p) => {
+    const pTasks = tasks.filter((t) => t.project_id === p.id);
+    return pTasks.some((t) => t.status !== "Not Started");
+  }).length;
+
+  const totalEffort = tasks.reduce((s, t) => s + (EFFORT_VALUES[t.effort as EffortSize] ?? 3), 0);
+  const doneEffort = tasks.filter((t) => t.status === "Done").reduce((s, t) => s + (EFFORT_VALUES[t.effort as EffortSize] ?? 3), 0);
+  const effortPct = totalEffort > 0 ? Math.round((doneEffort / totalEffort) * 100) : 0;
+
+  const doneCount = tasks.filter((t) => t.status === "Done").length;
+  const taskPct = tasks.length > 0 ? Math.round((doneCount / tasks.length) * 100) : 0;
+
+  const atRiskCount = tasks.filter((t) => {
+    if (t.status === "Done") return false;
+    const end = new Date(t.end_date);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return (end < today && t.status !== "Done") || t.status === "Blocked";
+  }).length;
+
+  const tiles = [
+    { label: "Projects Started", value: startedProjects, sub: `of ${projects.length}` },
+    { label: "Effort Completion", value: `${effortPct}%`, sub: `(${totalEffort} pts)` },
+    { label: "Task Completion", value: `${taskPct}%`, sub: `(${tasks.length} tasks)` },
+    { label: "Tasks at Risk", value: atRiskCount, sub: "overdue / blocked", alert: atRiskCount > 0 },
+  ];
+
+  return (
+    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      {tiles.map((t) => (
+        <Card key={t.label}>
+          <CardContent className="py-4 px-5">
+            <p className="text-xs text-muted-foreground mb-1">{t.label}</p>
+            <p className={`text-2xl font-bold ${t.alert ? "text-destructive" : "text-foreground"}`}>{t.value}</p>
+            <p className="text-xs text-muted-foreground">{t.sub}</p>
+          </CardContent>
+        </Card>
+      ))}
+    </div>
+  );
+}
 
 const Dashboard = () => {
   const navigate = useNavigate();
