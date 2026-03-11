@@ -15,7 +15,7 @@ import { ProjectGantt } from "@/components/ProjectGantt";
 import { CompletionChart } from "@/components/CompletionChart";
 import { BurnDownChart } from "@/components/BurnDownChart";
 
-function SummaryTiles({ projects, tasks }: { projects: ProjectType[]; tasks: TaskType[] }) {
+function SummaryTiles({ projects, tasks }: { projects: Project[]; tasks: Task[] }) {
   const startedProjects = projects.filter((p) => {
     const pTasks = tasks.filter((t) => t.project_id === p.id);
     return pTasks.some((t) => t.status !== "Not Started");
