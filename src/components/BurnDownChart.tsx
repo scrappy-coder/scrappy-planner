@@ -89,7 +89,7 @@ export function BurnDownChart({ tasks }: BurnDownChartProps) {
   }, [tasks, selectedQuarter]);
 
   const { data, todayKey } = useMemo(() => {
-    if (!selectedQ || filteredTasks.length === 0) return { data: [], todayKey: "" };
+    if (filteredTasks.length === 0) return { data: [], todayKey: "" };
 
     const toLocalDate = (value: Date | string) => {
       if (typeof value === "string") {
@@ -110,8 +110,16 @@ export function BurnDownChart({ tasks }: BurnDownChartProps) {
       return `${year}-${month}-${day}`;
     };
 
-    const minDate = toLocalDate(selectedQ.start);
-    const maxDate = toLocalDate(selectedQ.end);
+    const parsedRange = getQuarterRangeFromLabel(selectedQuarter);
+    const fallbackRange = selectedQ
+      ? { start: toLocalDate(selectedQ.start), end: toLocalDate(selectedQ.end) }
+      : null;
+    const range = parsedRange ?? fallbackRange;
+
+    if (!range) return { data: [], todayKey: "" };
+
+    const minDate = range.start;
+    const maxDate = range.end;
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
