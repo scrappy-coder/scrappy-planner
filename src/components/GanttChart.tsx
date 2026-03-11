@@ -111,7 +111,7 @@ export function GanttChart({ tasks, quarter }: GanttChartProps) {
         <div className="space-y-0.5">
           {orderedTasks.map(({ task, isChild }) => {
             const bar = getBarStyle(task);
-            const isOverdue = new Date(task.end_date) < today && task.status !== "Done";
+            const isOverdue = parseLocalDate(task.end_date) < today && task.status !== "Done";
             return (
               <div key={task.id} className={cn("flex items-center gap-3", isChild ? "h-7" : "h-9")}>
                 <div

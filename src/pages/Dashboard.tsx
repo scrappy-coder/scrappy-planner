@@ -30,7 +30,8 @@ function SummaryTiles({ projects, tasks }: { projects: Project[]; tasks: Task[] 
 
   const atRiskCount = tasks.filter((t) => {
     if (t.status === "Done") return false;
-    const end = new Date(t.end_date);
+    const [y, m, d] = t.end_date.split("-").map(Number);
+    const end = new Date(y, m - 1, d);
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     return end < today || t.status === "Blocked";

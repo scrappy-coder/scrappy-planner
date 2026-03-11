@@ -225,7 +225,7 @@ const ProjectView = () => {
                             <TaskRow
                               key={sub.id}
                               task={sub}
-                              isOverdue={new Date(sub.end_date) < new Date() && sub.status !== "Done"}
+                              isOverdue={(() => { const [y,m,d] = sub.end_date.split("-").map(Number); const e = new Date(y,m-1,d); const t2 = new Date(); t2.setHours(0,0,0,0); return e < t2 && sub.status !== "Done"; })()}
                               isSubtask
                               onEdit={() => { setEditingTask(sub); setParentForSubtask(undefined); setShowTaskForm(true); }}
                               onDelete={() => handleDeleteTask(sub.id)}

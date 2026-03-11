@@ -49,18 +49,13 @@ export function getProjectSummary(tasks: Task[]): ProjectSummary {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  const parseDate = (s: string) => {
-    const [y, m, d] = s.split("-").map(Number);
-    return new Date(y, m - 1, d);
-  };
-
   const completedTasks = tasks.filter((t) => t.status === "Done").length;
   const overdueTasks = tasks.filter((t) => {
-    return parseDate(t.end_date) < today && t.status !== "Done";
+    return parseLocalDate(t.end_date) < today && t.status !== "Done";
   }).length;
 
   const futureDates = tasks
-    .filter((t) => parseDate(t.end_date) >= today && t.status !== "Done")
+    .filter((t) => parseLocalDate(t.end_date) >= today && t.status !== "Done")
     .map((t) => t.end_date)
     .sort();
 

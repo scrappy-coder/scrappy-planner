@@ -33,7 +33,7 @@ export function ProjectGantt({ projects, tasks, onSelectProject }: ProjectGanttP
         const projectTasks = tasks.filter((t) => t.project_id === project.id);
         if (projectTasks.length === 0) return null;
 
-        const dates = projectTasks.flatMap((t) => [new Date(t.start_date), new Date(t.end_date)]);
+        const dates = projectTasks.flatMap((t) => [parseLocalDate(t.start_date), parseLocalDate(t.end_date)]);
         const minDate = new Date(Math.min(...dates.map((d) => d.getTime())));
         const maxDate = new Date(Math.max(...dates.map((d) => d.getTime())));
         const completedTasks = projectTasks.filter((t) => t.status === "Done").length;
