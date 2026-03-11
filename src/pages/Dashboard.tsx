@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { Project, Task, EFFORT_VALUES, EffortSize } from "@/lib/types";
+import { Project, Task, EFFORT_VALUES, EFFORT_SIZES } from "@/lib/types";
 import { getProjects, createProject, deleteProject, getTasks, seedData, updateProject } from "@/lib/store";
 import { assessRisk, getProjectSummary } from "@/lib/risk";
 import { getAdjacentQuarters } from "@/lib/fiscal";
@@ -11,7 +11,8 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, FolderOpen, Trash2, LayoutDashboard, Loader2, CalendarDays, CheckCircle2, AlertTriangle, Clock } from "lucide-react";
+import { Plus, FolderOpen, Trash2, LayoutDashboard, Loader2, CalendarDays, CheckCircle2, AlertTriangle, Clock, Info } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { ProjectGantt } from "@/components/ProjectGantt";
 import { CompletionChart } from "@/components/CompletionChart";
 import { BurnDownChart } from "@/components/BurnDownChart";
@@ -24,37 +25,59 @@ function SummaryTiles({ projects, tasks }: { projects: Project[]; tasks: Task[] 
     : "—";
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-      <Card>
-        <CardContent className="py-4 px-5">
-          <div className="flex items-center gap-2 mb-1"><CalendarDays className="h-4 w-4 text-primary" /><p className="text-xs text-muted-foreground">Total Tasks</p></div>
-          <p className="text-2xl font-bold text-foreground">{summary.totalTasks}</p>
-        </CardContent>
-      </Card>
-      <Card>
-        <CardContent className="py-4 px-5">
-          <div className="flex items-center gap-2 mb-1"><CheckCircle2 className="h-4 w-4 text-status-done" /><p className="text-xs text-muted-foreground">Completed</p></div>
-          <p className="text-2xl font-bold text-foreground">{summary.completedTasks}</p>
-        </CardContent>
-      </Card>
-      <Card>
-        <CardContent className="py-4 px-5">
-          <div className="flex items-center gap-2 mb-1"><AlertTriangle className="h-4 w-4 text-status-at-risk" /><p className="text-xs text-muted-foreground">Overdue</p></div>
-          <p className={`text-2xl font-bold ${summary.overdueTasks > 0 ? "text-destructive" : "text-foreground"}`}>{summary.overdueTasks}</p>
-        </CardContent>
-      </Card>
-      <Card>
-        <CardContent className="py-4 px-5">
-          <div className="flex items-center gap-2 mb-1"><Clock className="h-4 w-4 text-orange-500" /><p className="text-xs text-muted-foreground">Behind Schedule</p></div>
-          <p className={`text-2xl font-bold ${summary.behindSchedule > 0 ? "text-orange-500" : "text-foreground"}`}>{summary.behindSchedule}</p>
-        </CardContent>
-      </Card>
-      <Card>
-        <CardContent className="py-4 px-5">
-          <div className="flex items-center gap-2 mb-1"><Clock className="h-4 w-4 text-muted-foreground" /><p className="text-xs text-muted-foreground">Next Due</p></div>
-          <p className="text-2xl font-bold text-foreground">{nextDueFormatted}</p>
-        </CardContent>
-      </Card>
+    <div className="space-y-2">
+      <div className="flex justify-end">
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button variant="ghost" size="sm" className="h-7 gap-1.5 text-xs text-muted-foreground">
+              <Info className="h-3.5 w-3.5" /> Effort Legend
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-48 p-3" align="end">
+            <p className="text-xs font-semibold text-foreground mb-2">T-Shirt Sizing</p>
+            <div className="space-y-1">
+              {EFFORT_SIZES.map((s) => (
+                <div key={s} className="flex items-center justify-between text-xs">
+                  <span className="font-medium text-foreground uppercase">{s}</span>
+                  <span className="text-muted-foreground">{EFFORT_VALUES[s]} point{EFFORT_VALUES[s] > 1 ? "s" : ""}</span>
+                </div>
+              ))}
+            </div>
+          </PopoverContent>
+        </Popover>
+      </div>
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+        <Card>
+          <CardContent className="py-4 px-5">
+            <div className="flex items-center gap-2 mb-1"><CalendarDays className="h-4 w-4 text-primary" /><p className="text-xs text-muted-foreground">Total Tasks</p></div>
+            <p className="text-2xl font-bold text-foreground">{summary.totalTasks}</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="py-4 px-5">
+            <div className="flex items-center gap-2 mb-1"><CheckCircle2 className="h-4 w-4 text-status-done" /><p className="text-xs text-muted-foreground">Completed</p></div>
+            <p className="text-2xl font-bold text-foreground">{summary.completedTasks}</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="py-4 px-5">
+            <div className="flex items-center gap-2 mb-1"><AlertTriangle className="h-4 w-4 text-status-at-risk" /><p className="text-xs text-muted-foreground">Overdue</p></div>
+            <p className={`text-2xl font-bold ${summary.overdueTasks > 0 ? "text-destructive" : "text-foreground"}`}>{summary.overdueTasks}</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="py-4 px-5">
+            <div className="flex items-center gap-2 mb-1"><Clock className="h-4 w-4 text-orange-500" /><p className="text-xs text-muted-foreground">Behind Schedule</p></div>
+            <p className={`text-2xl font-bold ${summary.behindSchedule > 0 ? "text-orange-500" : "text-foreground"}`}>{summary.behindSchedule}</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="py-4 px-5">
+            <div className="flex items-center gap-2 mb-1"><Clock className="h-4 w-4 text-muted-foreground" /><p className="text-xs text-muted-foreground">Next Due</p></div>
+            <p className="text-2xl font-bold text-foreground">{nextDueFormatted}</p>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }
