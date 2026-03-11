@@ -169,7 +169,7 @@ export function BurnDownChart({ tasks }: BurnDownChartProps) {
 
     const todayInRange = today >= minDate && today <= maxDate;
     return { data: points, todayKey: todayInRange ? toDateKey(today) : "" };
-  }, [filteredTasks, selectedQ]);
+  }, [filteredTasks, selectedQ, selectedQuarter]);
 
   return (
     <div className="space-y-3">
