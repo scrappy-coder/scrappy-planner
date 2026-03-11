@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import { Task } from "@/lib/types";
 import { FiscalQuarter } from "@/lib/types";
 import { cn } from "@/lib/utils";
+import { parseLocalDate } from "@/lib/utils";
 
 interface GanttChartProps {
   tasks: Task[];
