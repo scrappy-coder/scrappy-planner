@@ -54,77 +54,84 @@ export function BurnDownChart({ tasks }: BurnDownChartProps) {
     return ALL_QUARTERS.filter((q) => labels.has(q.label) || q.label === selectedQuarter);
   }, [tasks, selectedQuarter]);
 
-  const { data, todayLabel } = useMemo(() => {
-    if (!selectedQ || filteredTasks.length === 0) return { data: [], todayLabel: "" };
+  const { data, todayKey } = useMemo(() => {
+    if (!selectedQ || filteredTasks.length === 0) return { data: [], todayKey: "" };
 
-    const minDate = selectedQ.start;
-    const maxDate = selectedQ.end;
+    const toLocalDate = (value: Date | string) => {
+      if (typeof value === "string") {
+        const [y, m, d] = value.split("-").map(Number);
+        const parsed = new Date(y, m - 1, d);
+        parsed.setHours(0, 0, 0, 0);
+        return parsed;
+      }
+      const parsed = new Date(value);
+      parsed.setHours(0, 0, 0, 0);
+      return parsed;
+    };
+
+    const toDateKey = (d: Date) => {
+      const year = d.getFullYear();
+      const month = String(d.getMonth() + 1).padStart(2, "0");
+      const day = String(d.getDate()).padStart(2, "0");
+      return `${year}-${month}-${day}`;
+    };
+
+    const minDate = toLocalDate(selectedQ.start);
+    const maxDate = toLocalDate(selectedQ.end);
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    const formatDate = (d: Date) =>
-      d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+    const remainingEffortAtDate = (d: Date) => {
+      return filteredTasks.reduce((sum, t) => {
+        if (t.status === "Done") {
+          const endLocal = toLocalDate(t.end_date);
+          if (endLocal <= d) return sum;
+        }
+        return sum + getEffortValue(t.effort);
+      }, 0);
+    };
 
-    const totalEffort = filteredTasks.reduce((sum, t) => sum + getEffortValue(t.effort), 0);
-
-    // Weekly sampling within quarter range
-    const dateSet = new Map<number, Date>();
-    const current = new Date(minDate);
-    current.setHours(0, 0, 0, 0);
-
-    while (current <= maxDate) {
-      dateSet.set(current.getTime(), new Date(current));
-      current.setDate(current.getDate() + 7);
-    }
-    dateSet.set(maxDate.getTime(), new Date(maxDate));
-
-    const todayInRange = today >= minDate && today <= maxDate;
-    if (todayInRange) {
-      dateSet.set(today.getTime(), new Date(today));
-    }
-
-    const sortedDates = Array.from(dateSet.values()).sort((a, b) => a.getTime() - b.getTime());
+    // Keep both lines aligned at the same start value for the selected quarter
+    const startingEffort = remainingEffortAtDate(minDate);
 
     // 2-week sprint cadence for ideal burndown
     const SPRINT_DAYS = 14;
     const totalDays = Math.max(1, Math.ceil((maxDate.getTime() - minDate.getTime()) / (1000 * 60 * 60 * 24)));
     const numSprints = Math.max(1, Math.ceil(totalDays / SPRINT_DAYS));
-    const effortPerSprint = totalEffort / numSprints;
+    const effortPerSprint = startingEffort / numSprints;
 
-    const usedLabels = new Map<string, number>();
-    let resolvedTodayLabel = "";
+    // Sprint anchor requested: Mar 9 (falls back to quarter start if outside range)
+    const mar9Anchor = new Date(minDate.getFullYear(), 2, 9);
+    mar9Anchor.setHours(0, 0, 0, 0);
+    const sprintStart = mar9Anchor >= minDate && mar9Anchor <= maxDate ? mar9Anchor : minDate;
 
-    const points = sortedDates.map((d) => {
-      let label = formatDate(d);
-      const count = usedLabels.get(label) || 0;
-      if (count > 0) label = `${label}${"\u200B".repeat(count)}`;
-      usedLabels.set(label, count + 1);
+    // Daily sampling so exact completion dates (e.g. Mar 6) are visible
+    const points: Array<{ dateKey: string; Actual: number; Ideal: number }> = [];
+    const cursor = new Date(minDate);
 
-      if (todayInRange && d.getTime() === today.getTime()) {
-        resolvedTodayLabel = label;
-      }
+    while (cursor <= maxDate) {
+      const daysSinceSprintStart = Math.max(
+        0,
+        Math.floor((cursor.getTime() - sprintStart.getTime()) / (1000 * 60 * 60 * 24))
+      );
+      const sprintsCompleted = Math.floor(daysSinceSprintStart / SPRINT_DAYS);
 
-      // Actual: remaining effort (tasks not yet Done by this date)
-      const remaining = filteredTasks.reduce((sum, t) => {
-        if (t.status === "Done") {
-          // Parse end_date as local date to match sampling dates
-          const [ey, em, ed] = t.end_date.split("-").map(Number);
-          const endLocal = new Date(ey, em - 1, ed);
-          endLocal.setHours(0, 0, 0, 0);
-          if (endLocal <= d) return sum;
-        }
-        return sum + getEffortValue(t.effort);
-      }, 0);
+      const ideal = Math.max(
+        0,
+        Math.round((startingEffort - effortPerSprint * sprintsCompleted) * 10) / 10
+      );
 
-      // Ideal: step down every 2-week sprint
-      const daysElapsed = Math.max(0, (d.getTime() - minDate.getTime()) / (1000 * 60 * 60 * 24));
-      const sprintsCompleted = Math.floor(daysElapsed / SPRINT_DAYS);
-      const ideal = Math.max(0, Math.round((totalEffort - effortPerSprint * sprintsCompleted) * 10) / 10);
+      points.push({
+        dateKey: toDateKey(cursor),
+        Actual: remainingEffortAtDate(cursor),
+        Ideal: ideal,
+      });
 
-      return { date: label, Actual: remaining, Ideal: ideal };
-    });
+      cursor.setDate(cursor.getDate() + 1);
+    }
 
-    return { data: points, todayLabel: resolvedTodayLabel };
+    const todayInRange = today >= minDate && today <= maxDate;
+    return { data: points, todayKey: todayInRange ? toDateKey(today) : "" };
   }, [filteredTasks, selectedQ]);
 
   return (
@@ -150,10 +157,15 @@ export function BurnDownChart({ tasks }: BurnDownChartProps) {
           <LineChart data={data} margin={{ top: 16, right: 10, left: -10, bottom: 5 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
             <XAxis
-              dataKey="date"
+              dataKey="dateKey"
               tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }}
               tickLine={false}
               axisLine={{ stroke: "hsl(var(--border))" }}
+              minTickGap={24}
+              tickFormatter={(value: string) => {
+                const [y, m, d] = value.split("-").map(Number);
+                return new Date(y, m - 1, d).toLocaleDateString("en-US", { month: "short", day: "numeric" });
+              }}
             />
             <YAxis
               allowDecimals={false}
@@ -169,6 +181,10 @@ export function BurnDownChart({ tasks }: BurnDownChartProps) {
               }}
             />
             <Tooltip
+              labelFormatter={(value: string) => {
+                const [y, m, d] = value.split("-").map(Number);
+                return new Date(y, m - 1, d).toLocaleDateString("en-US", { month: "short", day: "numeric" });
+              }}
               contentStyle={{
                 backgroundColor: "hsl(var(--card))",
                 border: "1px solid hsl(var(--border))",
@@ -178,9 +194,9 @@ export function BurnDownChart({ tasks }: BurnDownChartProps) {
               labelStyle={{ color: "hsl(var(--foreground))", fontWeight: 600 }}
             />
             <Legend wrapperStyle={{ fontSize: 11 }} iconType="line" />
-            {todayLabel && (
+            {todayKey && (
               <ReferenceLine
-                x={todayLabel}
+                x={todayKey}
                 stroke="hsl(var(--destructive))"
                 strokeWidth={2}
                 strokeDasharray="4 3"
