@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { Project, Task } from "@/lib/types";
+import { getProjectColor } from "@/lib/colors";
 import { cn } from "@/lib/utils";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
@@ -22,6 +23,8 @@ interface ProjectBar {
 export function ProjectGantt({ projects, tasks, onSelectProject }: ProjectGanttProps) {
   const [hideCompleted, setHideCompleted] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(null);
+
+  const projectIds = useMemo(() => projects.map((p) => p.id), [projects]);
 
   const projectBars = useMemo(() => {
     return projects
@@ -137,11 +140,12 @@ export function ProjectGantt({ projects, tasks, onSelectProject }: ProjectGanttP
                 Math.ceil((bar.minDate.getTime() - globalMin.getTime()) / (1000 * 60 * 60 * 24))
               );
               const endDay = Math.ceil(
-                (bar.maxDate.getTime() - globalMin.getTime()) / (1000 * 60 * 60 * 24)
-              );
+                (bar.maxDate.getTime() - globalMin.getTime()) / (1000 * 60 * 60 * 24))
+              ;
               const leftPct = (startDay / totalDays) * 100;
               const widthPct = (Math.max(1, endDay - startDay + 1) / totalDays) * 100;
               const isSelected = selectedId === bar.project.id;
+              const barColor = getProjectColor(bar.project.id, projectIds);
 
               return (
                 <div
@@ -173,14 +177,16 @@ export function ProjectGantt({ projects, tasks, onSelectProject }: ProjectGanttP
                     )}
                     {/* Bar */}
                     <div
-                      className={cn(
-                        "absolute top-1 h-4 rounded-sm transition-all",
-                        bar.allDone ? "bg-gantt-bar-done" : "bg-gantt-bar"
-                      )}
-                      style={{ left: `${leftPct}%`, width: `${widthPct}%` }}
+                      className="absolute top-1 h-4 rounded-sm transition-all"
+                      style={{
+                        left: `${leftPct}%`,
+                        width: `${widthPct}%`,
+                        backgroundColor: barColor,
+                        opacity: bar.allDone ? 0.6 : 1,
+                      }}
                       title={`${bar.project.name}: ${bar.completedTasks}/${bar.totalTasks} done`}
                     >
-                      <span className="absolute inset-0 flex items-center px-1.5 text-[10px] font-medium text-primary-foreground truncate">
+                      <span className="absolute inset-0 flex items-center px-1.5 text-[10px] font-medium text-white truncate">
                         {bar.completedTasks}/{bar.totalTasks}
                       </span>
                     </div>
