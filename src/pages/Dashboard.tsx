@@ -1,9 +1,9 @@
 import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { Project, Task } from "@/lib/types";
-import { getProjects, createProject, deleteProject, getTasks, seedData } from "@/lib/store";
+import { getProjects, createProject, deleteProject, getTasks, seedData, updateProject } from "@/lib/store";
 import { assessRisk } from "@/lib/risk";
-import { getFiscalQuarterLabel } from "@/lib/fiscal";
+import { getAdjacentQuarters } from "@/lib/fiscal";
 import { RiskBadge } from "@/components/StatusBadge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
