@@ -33,7 +33,7 @@ function SummaryTiles({ projects, tasks }: { projects: Project[]; tasks: Task[] 
     const end = new Date(t.end_date);
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    return (end < today && t.status !== "Done") || t.status === "Blocked";
+    return end < today || t.status === "Blocked";
   }).length;
 
   const tiles = [
