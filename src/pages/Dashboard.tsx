@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { Project, Task, EFFORT_VALUES, EffortSize } from "@/lib/types";
+import { Project, Task, EFFORT_VALUES, EFFORT_SIZES } from "@/lib/types";
 import { getProjects, createProject, deleteProject, getTasks, seedData, updateProject } from "@/lib/store";
 import { assessRisk, getProjectSummary } from "@/lib/risk";
 import { getAdjacentQuarters } from "@/lib/fiscal";
