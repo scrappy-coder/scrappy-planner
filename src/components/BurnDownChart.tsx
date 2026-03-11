@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Project, Task, EFFORT_VALUES, EffortSize } from "@/lib/types";
 import { getAdjacentQuarters } from "@/lib/fiscal";
 import { FiscalQuarter } from "@/lib/types";
@@ -38,6 +38,13 @@ export function BurnDownChart({ tasks }: BurnDownChartProps) {
   }, [tasks]);
 
   const [selectedQuarter, setSelectedQuarter] = useState<string>(defaultQuarter);
+  const [hasManualQuarterSelection, setHasManualQuarterSelection] = useState(false);
+
+  useEffect(() => {
+    if (!hasManualQuarterSelection) {
+      setSelectedQuarter(defaultQuarter);
+    }
+  }, [defaultQuarter, hasManualQuarterSelection]);
 
   const selectedQ = useMemo(
     () => ALL_QUARTERS.find((q) => q.label === selectedQuarter),
@@ -46,12 +53,6 @@ export function BurnDownChart({ tasks }: BurnDownChartProps) {
 
   const filteredTasks = useMemo(() => {
     return tasks.filter((t) => t.fiscal_quarter === selectedQuarter);
-  }, [tasks, selectedQuarter]);
-
-  const quarterLabels = useMemo(() => {
-    const labels = new Set(tasks.map((t) => t.fiscal_quarter).filter(Boolean));
-    // Show all quarters but highlight ones with tasks
-    return ALL_QUARTERS.filter((q) => labels.has(q.label) || q.label === selectedQuarter);
   }, [tasks, selectedQuarter]);
 
   const { data, todayKey } = useMemo(() => {
