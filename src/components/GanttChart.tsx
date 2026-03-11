@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import { Task } from "@/lib/types";
 import { FiscalQuarter } from "@/lib/types";
 import { cn } from "@/lib/utils";
+import { parseLocalDate } from "@/lib/utils";
 
 interface GanttChartProps {
   tasks: Task[];
@@ -43,8 +44,8 @@ export function GanttChart({ tasks, quarter }: GanttChartProps) {
   }, [today, quarter, totalDays]);
 
   const getBarStyle = (task: Task) => {
-    const start = new Date(task.start_date);
-    const end = new Date(task.end_date);
+    const start = parseLocalDate(task.start_date);
+    const end = parseLocalDate(task.end_date);
     const effectiveStart = start < quarter.start ? quarter.start : start;
     const effectiveEnd = end > quarter.end ? quarter.end : end;
 
@@ -110,7 +111,7 @@ export function GanttChart({ tasks, quarter }: GanttChartProps) {
         <div className="space-y-0.5">
           {orderedTasks.map(({ task, isChild }) => {
             const bar = getBarStyle(task);
-            const isOverdue = new Date(task.end_date) < today && task.status !== "Done";
+            const isOverdue = parseLocalDate(task.end_date) < today && task.status !== "Done";
             return (
               <div key={task.id} className={cn("flex items-center gap-3", isChild ? "h-7" : "h-9")}>
                 <div

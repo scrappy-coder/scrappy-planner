@@ -1,4 +1,5 @@
 import { Task, RiskInfo, ProjectSummary } from "./types";
+import { parseLocalDate } from "./utils";
 
 export function assessRisk(tasks: Task[]): RiskInfo {
   if (tasks.length === 0) return { level: "On Track", reasons: [] };
@@ -12,7 +13,7 @@ export function assessRisk(tasks: Task[]): RiskInfo {
 
   // a) Tasks with end date in the past and not Done
   const overdueTasks = tasks.filter((t) => {
-    const end = new Date(t.end_date);
+    const end = parseLocalDate(t.end_date);
     return end < today && t.status !== "Done";
   });
 
@@ -23,7 +24,7 @@ export function assessRisk(tasks: Task[]): RiskInfo {
   // b) Blocked task whose end date is within 14 days or already passed
   const blockedUrgent = tasks.filter((t) => {
     if (t.status !== "Blocked") return false;
-    const end = new Date(t.end_date);
+    const end = parseLocalDate(t.end_date);
     return end <= in14Days;
   });
 
@@ -48,18 +49,13 @@ export function getProjectSummary(tasks: Task[]): ProjectSummary {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  const parseDate = (s: string) => {
-    const [y, m, d] = s.split("-").map(Number);
-    return new Date(y, m - 1, d);
-  };
-
   const completedTasks = tasks.filter((t) => t.status === "Done").length;
   const overdueTasks = tasks.filter((t) => {
-    return parseDate(t.end_date) < today && t.status !== "Done";
+    return parseLocalDate(t.end_date) < today && t.status !== "Done";
   }).length;
 
   const futureDates = tasks
-    .filter((t) => parseDate(t.end_date) >= today && t.status !== "Done")
+    .filter((t) => parseLocalDate(t.end_date) >= today && t.status !== "Done")
     .map((t) => t.end_date)
     .sort();
 
