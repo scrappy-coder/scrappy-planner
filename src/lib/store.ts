@@ -20,10 +20,10 @@ export async function createProject(name: string): Promise<Project> {
   return data;
 }
 
-export async function updateProject(id: string, name: string) {
+export async function updateProject(id: string, updates: Partial<Omit<Project, "id" | "created_at">>) {
   const { error } = await supabase
     .from("projects")
-    .update({ name })
+    .update(updates)
     .eq("id", id);
   if (error) throw error;
 }

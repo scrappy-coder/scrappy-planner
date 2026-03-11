@@ -65,7 +65,7 @@ const ProjectView = () => {
 
   const handleSaveName = async () => {
     if (nameValue.trim() && nameValue.trim() !== project.name) {
-      await updateProject(project.id, nameValue.trim());
+      await updateProject(project.id, { name: nameValue.trim() });
     }
     setEditingName(false);
     refresh();

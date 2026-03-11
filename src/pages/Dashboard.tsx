@@ -1,14 +1,15 @@
 import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { Project, Task } from "@/lib/types";
-import { getProjects, createProject, deleteProject, getTasks, seedData } from "@/lib/store";
+import { getProjects, createProject, deleteProject, getTasks, seedData, updateProject } from "@/lib/store";
 import { assessRisk } from "@/lib/risk";
-import { getFiscalQuarterLabel } from "@/lib/fiscal";
+import { getAdjacentQuarters } from "@/lib/fiscal";
 import { RiskBadge } from "@/components/StatusBadge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Plus, FolderOpen, Trash2, LayoutDashboard, Loader2 } from "lucide-react";
 import { ProjectGantt } from "@/components/ProjectGantt";
 import { CompletionChart } from "@/components/CompletionChart";
@@ -129,9 +130,25 @@ const Dashboard = () => {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-3 mb-1.5">
                         <h2 className="font-medium text-foreground truncate">{project.name}</h2>
-                        <span className="text-xs text-muted-foreground shrink-0">
-                          {getFiscalQuarterLabel(new Date())}
-                        </span>
+                        <Select
+                          value={project.fiscal_quarter || ""}
+                          onValueChange={async (v) => {
+                            await updateProject(project.id, { fiscal_quarter: v });
+                            refresh();
+                          }}
+                        >
+                          <SelectTrigger
+                            className="w-32 h-6 text-xs"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <SelectValue placeholder="Set quarter" />
+                          </SelectTrigger>
+                          <SelectContent onClick={(e) => e.stopPropagation()}>
+                            {getAdjacentQuarters(4).map((q) => (
+                              <SelectItem key={q.label} value={q.label}>{q.label}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                       </div>
                       <div className="flex items-center gap-4">
                         <RiskBadge level={risk.level} reasons={risk.reasons} />

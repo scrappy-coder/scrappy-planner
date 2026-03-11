@@ -1,0 +1,1 @@
+ALTER TABLE public.projects ADD COLUMN fiscal_quarter text NOT NULL DEFAULT '';
