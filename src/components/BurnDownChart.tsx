@@ -157,10 +157,15 @@ export function BurnDownChart({ tasks }: BurnDownChartProps) {
           <LineChart data={data} margin={{ top: 16, right: 10, left: -10, bottom: 5 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
             <XAxis
-              dataKey="date"
+              dataKey="dateKey"
               tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }}
               tickLine={false}
               axisLine={{ stroke: "hsl(var(--border))" }}
+              minTickGap={24}
+              tickFormatter={(value: string) => {
+                const [y, m, d] = value.split("-").map(Number);
+                return new Date(y, m - 1, d).toLocaleDateString("en-US", { month: "short", day: "numeric" });
+              }}
             />
             <YAxis
               allowDecimals={false}
@@ -176,6 +181,10 @@ export function BurnDownChart({ tasks }: BurnDownChartProps) {
               }}
             />
             <Tooltip
+              labelFormatter={(value: string) => {
+                const [y, m, d] = value.split("-").map(Number);
+                return new Date(y, m - 1, d).toLocaleDateString("en-US", { month: "short", day: "numeric" });
+              }}
               contentStyle={{
                 backgroundColor: "hsl(var(--card))",
                 border: "1px solid hsl(var(--border))",
@@ -185,9 +194,9 @@ export function BurnDownChart({ tasks }: BurnDownChartProps) {
               labelStyle={{ color: "hsl(var(--foreground))", fontWeight: 600 }}
             />
             <Legend wrapperStyle={{ fontSize: 11 }} iconType="line" />
-            {todayLabel && (
+            {todayKey && (
               <ReferenceLine
-                x={todayLabel}
+                x={todayKey}
                 stroke="hsl(var(--destructive))"
                 strokeWidth={2}
                 strokeDasharray="4 3"
