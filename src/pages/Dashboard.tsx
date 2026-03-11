@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { Project, Task } from "@/lib/types";
+import { Project, Task, EFFORT_VALUES, EffortSize } from "@/lib/types";
 import { getProjects, createProject, deleteProject, getTasks, seedData, updateProject } from "@/lib/store";
 import { assessRisk } from "@/lib/risk";
 import { getAdjacentQuarters } from "@/lib/fiscal";
@@ -10,12 +10,10 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, FolderOpen, Trash2, LayoutDashboard, Loader2, AlertTriangle } from "lucide-react";
+import { Plus, FolderOpen, Trash2, LayoutDashboard, Loader2 } from "lucide-react";
 import { ProjectGantt } from "@/components/ProjectGantt";
 import { CompletionChart } from "@/components/CompletionChart";
 import { BurnDownChart } from "@/components/BurnDownChart";
-import { EFFORT_VALUES, EffortSize, Task as TaskType, Project as ProjectType } from "@/lib/types";
-import { assessRisk } from "@/lib/risk";
 
 function SummaryTiles({ projects, tasks }: { projects: ProjectType[]; tasks: TaskType[] }) {
   const startedProjects = projects.filter((p) => {
