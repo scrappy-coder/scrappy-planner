@@ -3,12 +3,13 @@ import { FiscalQuarter } from "./types";
 // Q1=Feb-Apr, Q2=May-Jul, Q3=Aug-Oct, Q4=Nov-Jan
 export function getFiscalQuarter(date: Date): { quarter: number; fiscalYear: number } {
   const month = date.getMonth(); // 0-indexed
-  if (month >= 1 && month <= 3) return { quarter: 1, fiscalYear: date.getFullYear() };
-  if (month >= 4 && month <= 6) return { quarter: 2, fiscalYear: date.getFullYear() };
-  if (month >= 7 && month <= 9) return { quarter: 3, fiscalYear: date.getFullYear() };
-  // Nov(10), Dec(11) → next fiscal year's Q4; Jan(0) → current year's Q4
-  if (month >= 10) return { quarter: 4, fiscalYear: date.getFullYear() + 1 };
-  return { quarter: 4, fiscalYear: date.getFullYear() }; // January
+  const year = date.getFullYear();
+  if (month >= 1 && month <= 3) return { quarter: 1, fiscalYear: year + 1 };
+  if (month >= 4 && month <= 6) return { quarter: 2, fiscalYear: year + 1 };
+  if (month >= 7 && month <= 9) return { quarter: 3, fiscalYear: year + 1 };
+  // Nov(10), Dec(11) → next calendar year + 1 FY; Jan(0) → current year's Q4
+  if (month >= 10) return { quarter: 4, fiscalYear: year + 1 };
+  return { quarter: 4, fiscalYear: year }; // January
 }
 
 export function getFiscalQuarterRange(quarter: number, fiscalYear: number): FiscalQuarter {
