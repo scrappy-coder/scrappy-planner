@@ -138,14 +138,16 @@ const ProjectView = () => {
       </header>
 
       <main className="container max-w-5xl mx-auto px-4 py-6 space-y-6">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
           <SummaryCard icon={<CalendarDays className="h-4 w-4 text-primary" />} label="Total Tasks" value={summary.totalTasks} />
           <SummaryCard icon={<CheckCircle2 className="h-4 w-4 text-status-done" />} label="Completed" value={summary.completedTasks} />
           <SummaryCard icon={<AlertTriangle className="h-4 w-4 text-status-at-risk" />} label="Overdue" value={summary.overdueTasks} />
+          <SummaryCard icon={<Clock className="h-4 w-4 text-orange-500" />} label="Behind Schedule" value={summary.behindSchedule} />
           <SummaryCard
             icon={<Clock className="h-4 w-4 text-muted-foreground" />}
             label="Next Due"
             value={summary.nextDueDate ? (() => { const [y,m,d] = summary.nextDueDate!.split("-").map(Number); return new Date(y,m-1,d).toLocaleDateString("en-US", { month: "short", day: "numeric" }); })() : "—"}
+          />
           />
         </div>
 

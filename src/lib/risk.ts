@@ -54,6 +54,12 @@ export function getProjectSummary(tasks: Task[]): ProjectSummary {
     return parseLocalDate(t.end_date) < today && t.status !== "Done";
   }).length;
 
+  const behindSchedule = tasks.filter((t) => {
+    if (t.status === "Done") return false;
+    const end = parseLocalDate(t.end_date);
+    return end < today && t.status === "In Progress";
+  }).length;
+
   const futureDates = tasks
     .filter((t) => parseLocalDate(t.end_date) >= today && t.status !== "Done")
     .map((t) => t.end_date)
@@ -63,6 +69,7 @@ export function getProjectSummary(tasks: Task[]): ProjectSummary {
     totalTasks: tasks.length,
     completedTasks,
     overdueTasks,
+    behindSchedule,
     nextDueDate: futureDates[0] || null,
   };
 }
