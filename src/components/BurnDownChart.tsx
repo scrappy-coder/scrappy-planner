@@ -85,8 +85,11 @@ export function BurnDownChart({ tasks }: BurnDownChartProps) {
 
     const sortedDates = Array.from(dateSet.values()).sort((a, b) => a.getTime() - b.getTime());
 
+    // 2-week sprint cadence for ideal burndown
+    const SPRINT_DAYS = 14;
     const totalDays = Math.max(1, Math.ceil((maxDate.getTime() - minDate.getTime()) / (1000 * 60 * 60 * 24)));
-    const dailyBurnRate = totalEffort / totalDays;
+    const numSprints = Math.max(1, Math.ceil(totalDays / SPRINT_DAYS));
+    const effortPerSprint = totalEffort / numSprints;
 
     const usedLabels = new Map<string, number>();
     let resolvedTodayLabel = "";
@@ -101,15 +104,16 @@ export function BurnDownChart({ tasks }: BurnDownChartProps) {
         resolvedTodayLabel = label;
       }
 
-      // Actual: sum of remaining effort across all projects
+      // Actual: remaining effort (tasks not yet Done by this date)
       const remaining = filteredTasks.reduce((sum, t) => {
         if (t.status === "Done" && new Date(t.end_date) <= d) return sum;
         return sum + getEffortValue(t.effort);
       }, 0);
 
-      // Ideal burndown
+      // Ideal: step down every 2-week sprint
       const daysElapsed = Math.max(0, (d.getTime() - minDate.getTime()) / (1000 * 60 * 60 * 24));
-      const ideal = Math.max(0, Math.round((totalEffort - dailyBurnRate * daysElapsed) * 10) / 10);
+      const sprintsCompleted = Math.floor(daysElapsed / SPRINT_DAYS);
+      const ideal = Math.max(0, Math.round((totalEffort - effortPerSprint * sprintsCompleted) * 10) / 10);
 
       return { date: label, Actual: remaining, Ideal: ideal };
     });
