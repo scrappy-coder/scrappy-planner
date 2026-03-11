@@ -145,7 +145,7 @@ const ProjectView = () => {
           <SummaryCard
             icon={<Clock className="h-4 w-4 text-muted-foreground" />}
             label="Next Due"
-            value={summary.nextDueDate ? new Date(summary.nextDueDate).toLocaleDateString("en-US", { month: "short", day: "numeric" }) : "—"}
+            value={summary.nextDueDate ? (() => { const [y,m,d] = summary.nextDueDate!.split("-").map(Number); return new Date(y,m-1,d).toLocaleDateString("en-US", { month: "short", day: "numeric" }); })() : "—"}
           />
         </div>
 
