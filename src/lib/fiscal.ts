@@ -13,6 +13,9 @@ export function getFiscalQuarter(date: Date): { quarter: number; fiscalYear: num
 }
 
 export function getFiscalQuarterRange(quarter: number, fiscalYear: number): FiscalQuarter {
+  // Q1=Feb-Apr, Q2=May-Jul, Q3=Aug-Oct, Q4=Nov-Jan
+  // FY27 Q1 = Feb 2026 – Apr 2026
+  // FY27 Q4 = Nov 2026 – Jan 2027
   const quarterMonths: Record<number, [number, number]> = {
     1: [1, 3],   // Feb-Apr
     2: [4, 6],   // May-Jul
@@ -22,12 +25,15 @@ export function getFiscalQuarterRange(quarter: number, fiscalYear: number): Fisc
 
   const [startMonth, endMonth] = quarterMonths[quarter];
 
-  let startYear = fiscalYear;
-  let endYear = fiscalYear;
+  let startYear: number;
+  let endYear: number;
 
   if (quarter === 4) {
-    startYear = fiscalYear - 1; // Nov of previous year
-    endYear = fiscalYear; // Jan of fiscal year
+    startYear = fiscalYear - 1; // Nov of previous calendar year
+    endYear = fiscalYear;       // Jan of fiscal year
+  } else {
+    startYear = fiscalYear - 1; // Q1-Q3: calendar year = fiscalYear - 1
+    endYear = fiscalYear - 1;
   }
 
   const start = new Date(startYear, startMonth, 1);
