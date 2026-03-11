@@ -10,6 +10,7 @@ export function assessRisk(tasks: Task[]): RiskInfo {
   in14Days.setDate(in14Days.getDate() + 14);
 
   const reasons: string[] = [];
+  const behindReasons: string[] = [];
 
   // a) Tasks with end date in the past and not Done
   const overdueTasks = tasks.filter((t) => {
@@ -39,10 +40,25 @@ export function assessRisk(tasks: Task[]): RiskInfo {
     }
   }
 
-  return {
-    level: reasons.length > 0 ? "At Risk" : "On Track",
-    reasons,
-  };
+  // d) Behind schedule: past start date but not started, or past end date but still in progress
+  const behindTasks = tasks.filter((t) => {
+    if (t.status === "Done") return false;
+    const start = parseLocalDate(t.start_date);
+    const end = parseLocalDate(t.end_date);
+    return (start < today && t.status === "Not Started") || (end < today && t.status === "In Progress");
+  });
+
+  if (behindTasks.length > 0) {
+    behindReasons.push(`${behindTasks.length} task${behindTasks.length > 1 ? "s" : ""} behind schedule`);
+  }
+
+  if (reasons.length > 0) {
+    return { level: "At Risk", reasons };
+  }
+  if (behindReasons.length > 0) {
+    return { level: "Behind Schedule", reasons: behindReasons };
+  }
+  return { level: "On Track", reasons: [] };
 }
 
 export function getProjectSummary(tasks: Task[]): ProjectSummary {

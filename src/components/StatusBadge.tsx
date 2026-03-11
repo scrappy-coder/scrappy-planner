@@ -19,6 +19,7 @@ export function StatusBadge({ status }: { status: TaskStatus }) {
 
 export function RiskBadge({ level, reasons }: { level: RiskLevel; reasons: string[] }) {
   const isRisk = level === "At Risk";
+  const isBehind = level === "Behind Schedule";
   return (
     <div className="flex items-center gap-2">
       <Badge
@@ -27,12 +28,14 @@ export function RiskBadge({ level, reasons }: { level: RiskLevel; reasons: strin
           "text-xs font-medium",
           isRisk
             ? "bg-status-at-risk/15 text-status-at-risk border-status-at-risk/30"
-            : "bg-status-on-track/15 text-status-on-track border-status-on-track/30"
+            : isBehind
+              ? "bg-orange-500/15 text-orange-500 border-orange-500/30"
+              : "bg-status-on-track/15 text-status-on-track border-status-on-track/30"
         )}
       >
         {level}
       </Badge>
-      {isRisk && reasons.length > 0 && (
+      {(isRisk || isBehind) && reasons.length > 0 && (
         <span className="text-xs text-muted-foreground">{reasons[0]}</span>
       )}
     </div>
