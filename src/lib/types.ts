@@ -43,6 +43,7 @@ export interface ProjectSummary {
   totalTasks: number;
   completedTasks: number;
   overdueTasks: number;
+  behindSchedule: number;
   nextDueDate: string | null;
 }
 
