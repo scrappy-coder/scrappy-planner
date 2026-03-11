@@ -11,7 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, FolderOpen, Trash2, LayoutDashboard, Loader2 } from "lucide-react";
+import { Plus, FolderOpen, Trash2, LayoutDashboard, Loader2, CalendarDays, CheckCircle2, AlertTriangle, Clock } from "lucide-react";
 import { ProjectGantt } from "@/components/ProjectGantt";
 import { CompletionChart } from "@/components/CompletionChart";
 import { BurnDownChart } from "@/components/BurnDownChart";
@@ -27,31 +27,31 @@ function SummaryTiles({ projects, tasks }: { projects: Project[]; tasks: Task[] 
     <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
       <Card>
         <CardContent className="py-4 px-5">
-          <p className="text-xs text-muted-foreground mb-1">Total Tasks</p>
+          <div className="flex items-center gap-2 mb-1"><CalendarDays className="h-4 w-4 text-primary" /><p className="text-xs text-muted-foreground">Total Tasks</p></div>
           <p className="text-2xl font-bold text-foreground">{summary.totalTasks}</p>
         </CardContent>
       </Card>
       <Card>
         <CardContent className="py-4 px-5">
-          <p className="text-xs text-muted-foreground mb-1">Completed</p>
+          <div className="flex items-center gap-2 mb-1"><CheckCircle2 className="h-4 w-4 text-status-done" /><p className="text-xs text-muted-foreground">Completed</p></div>
           <p className="text-2xl font-bold text-foreground">{summary.completedTasks}</p>
         </CardContent>
       </Card>
       <Card>
         <CardContent className="py-4 px-5">
-          <p className="text-xs text-muted-foreground mb-1">Overdue</p>
+          <div className="flex items-center gap-2 mb-1"><AlertTriangle className="h-4 w-4 text-status-at-risk" /><p className="text-xs text-muted-foreground">Overdue</p></div>
           <p className={`text-2xl font-bold ${summary.overdueTasks > 0 ? "text-destructive" : "text-foreground"}`}>{summary.overdueTasks}</p>
         </CardContent>
       </Card>
       <Card>
         <CardContent className="py-4 px-5">
-          <p className="text-xs text-muted-foreground mb-1">Behind Schedule</p>
+          <div className="flex items-center gap-2 mb-1"><Clock className="h-4 w-4 text-orange-500" /><p className="text-xs text-muted-foreground">Behind Schedule</p></div>
           <p className={`text-2xl font-bold ${summary.behindSchedule > 0 ? "text-orange-500" : "text-foreground"}`}>{summary.behindSchedule}</p>
         </CardContent>
       </Card>
       <Card>
         <CardContent className="py-4 px-5">
-          <p className="text-xs text-muted-foreground mb-1">Next Due</p>
+          <div className="flex items-center gap-2 mb-1"><Clock className="h-4 w-4 text-muted-foreground" /><p className="text-xs text-muted-foreground">Next Due</p></div>
           <p className="text-2xl font-bold text-foreground">{nextDueFormatted}</p>
         </CardContent>
       </Card>
