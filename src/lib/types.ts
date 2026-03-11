@@ -29,6 +29,7 @@ export interface Project {
   id: string;
   name: string;
   created_at: string;
+  fiscal_quarter: string;
 }
 
 export type RiskLevel = "On Track" | "At Risk";
