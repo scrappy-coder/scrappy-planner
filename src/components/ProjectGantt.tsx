@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { Project, Task } from "@/lib/types";
 import { getProjectColor } from "@/lib/colors";
 import { cn } from "@/lib/utils";
+import { parseLocalDate } from "@/lib/utils";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 
