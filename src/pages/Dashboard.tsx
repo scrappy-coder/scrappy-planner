@@ -130,9 +130,25 @@ const Dashboard = () => {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-3 mb-1.5">
                         <h2 className="font-medium text-foreground truncate">{project.name}</h2>
-                        <span className="text-xs text-muted-foreground shrink-0">
-                          {getFiscalQuarterLabel(new Date())}
-                        </span>
+                        <Select
+                          value={project.fiscal_quarter || ""}
+                          onValueChange={async (v) => {
+                            await updateProject(project.id, { fiscal_quarter: v });
+                            refresh();
+                          }}
+                        >
+                          <SelectTrigger
+                            className="w-32 h-6 text-xs"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <SelectValue placeholder="Set quarter" />
+                          </SelectTrigger>
+                          <SelectContent onClick={(e) => e.stopPropagation()}>
+                            {getAdjacentQuarters(4).map((q) => (
+                              <SelectItem key={q.label} value={q.label}>{q.label}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                       </div>
                       <div className="flex items-center gap-4">
                         <RiskBadge level={risk.level} reasons={risk.reasons} />
