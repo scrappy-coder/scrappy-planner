@@ -44,8 +44,8 @@ export function GanttChart({ tasks, quarter }: GanttChartProps) {
   }, [today, quarter, totalDays]);
 
   const getBarStyle = (task: Task) => {
-    const start = new Date(task.start_date);
-    const end = new Date(task.end_date);
+    const start = parseLocalDate(task.start_date);
+    const end = parseLocalDate(task.end_date);
     const effectiveStart = start < quarter.start ? quarter.start : start;
     const effectiveEnd = end > quarter.end ? quarter.end : end;
 
