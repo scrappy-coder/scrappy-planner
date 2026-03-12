@@ -82,6 +82,7 @@ export function TaskForm({ open, onClose, onSave, initialData, parentTask }: Tas
                 <SelectContent>
                   <SelectItem value="Not Started">Not Started</SelectItem>
                   <SelectItem value="In Progress">In Progress</SelectItem>
+                  <SelectItem value="In Review">In Review</SelectItem>
                   <SelectItem value="Done">Done</SelectItem>
                   <SelectItem value="Blocked">Blocked</SelectItem>
                 </SelectContent>

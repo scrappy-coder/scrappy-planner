@@ -43,6 +43,7 @@
     --status-in-progress: 220 65% 48%;
     --status-not-started: 220 10% 60%;
     --status-blocked: 0 72% 51%;
+    --status-in-review: 280 60% 55%;
     --status-at-risk: 38 92% 50%;
     --status-on-track: 152 60% 42%;
 

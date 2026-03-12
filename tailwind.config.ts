@@ -82,14 +82,15 @@ export default {
   				DEFAULT: 'hsl(var(--card))',
   				foreground: 'hsl(var(--card-foreground))'
   			},
-  			status: {
-  				done: 'hsl(var(--status-done))',
-  				'in-progress': 'hsl(var(--status-in-progress))',
-  				'not-started': 'hsl(var(--status-not-started))',
-  				blocked: 'hsl(var(--status-blocked))',
-  				'at-risk': 'hsl(var(--status-at-risk))',
-  				'on-track': 'hsl(var(--status-on-track))'
-  			},
+			status: {
+				done: 'hsl(var(--status-done))',
+				'in-progress': 'hsl(var(--status-in-progress))',
+				'in-review': 'hsl(var(--status-in-review))',
+				'not-started': 'hsl(var(--status-not-started))',
+				blocked: 'hsl(var(--status-blocked))',
+				'at-risk': 'hsl(var(--status-at-risk))',
+				'on-track': 'hsl(var(--status-on-track))'
+			},
   			gantt: {
   				bar: 'hsl(var(--gantt-bar))',
   				'bar-done': 'hsl(var(--gantt-bar-done))',
