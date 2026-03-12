@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 const statusStyles: Record<TaskStatus, string> = {
   "Done": "bg-status-done/15 text-status-done border-status-done/30",
   "In Progress": "bg-status-in-progress/15 text-status-in-progress border-status-in-progress/30",
+  "In Review": "bg-status-in-review/15 text-status-in-review border-status-in-review/30",
   "Not Started": "bg-status-not-started/15 text-status-not-started border-status-not-started/30",
   "Blocked": "bg-status-blocked/15 text-status-blocked border-status-blocked/30",
 };

@@ -1,4 +1,4 @@
-export type TaskStatus = "Not Started" | "In Progress" | "Done" | "Blocked";
+export type TaskStatus = "Not Started" | "In Progress" | "In Review" | "Done" | "Blocked";
 
 export type EffortSize = "xs" | "s" | "m" | "l" | "xl";
 

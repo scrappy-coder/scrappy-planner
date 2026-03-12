@@ -8,7 +8,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Save, X, Loader2, CornerDownRight, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const STATUSES: TaskStatus[] = ["Not Started", "In Progress", "Done", "Blocked"];
+const STATUSES: TaskStatus[] = ["Not Started", "In Progress", "In Review", "Done", "Blocked"];
 const QUARTERS = getAdjacentQuarters(4);
 
 interface BulkEditTasksProps {
