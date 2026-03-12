@@ -198,7 +198,7 @@ const ProjectView = () => {
                 <CardTitle className="text-base">Today's Focus</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-2 max-h-[272px] overflow-y-auto pr-1">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-2 max-h-[272px] overflow-y-auto pr-1">
                   {todayTasks.map((task) => {
                     const [y, m, d] = task.end_date.split("-").map(Number);
                     const end = new Date(y, m - 1, d);

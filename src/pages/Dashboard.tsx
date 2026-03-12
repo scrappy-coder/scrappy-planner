@@ -202,7 +202,7 @@ const Dashboard = () => {
             <Card>
               <CardContent className="py-4 px-5">
                 <h3 className="text-sm font-semibold text-foreground mb-3">Today's Focus</h3>
-                <div className="space-y-2 max-h-[272px] overflow-y-auto pr-1">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-2 max-h-[272px] overflow-y-auto pr-1">
                   {todayTasks.map((task) => {
                     const proj = projects.find((p) => p.id === task.project_id);
                     const [y, m, d] = task.end_date.split("-").map(Number);
