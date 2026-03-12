@@ -163,6 +163,47 @@ const ProjectView = () => {
           )}
         </div>
 
+        {(() => {
+          const today = new Date();
+          today.setHours(0, 0, 0, 0);
+          const todayStr = today.toISOString().split("T")[0];
+          const todayTasks = tasks.filter((t) => {
+            if (t.status === "Done") return false;
+            if (t.status === "In Progress") return true;
+            const [y, m, d] = t.end_date.split("-").map(Number);
+            const end = new Date(y, m - 1, d);
+            return end < today;
+          });
+          return todayTasks.length > 0 ? (
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base">Today's Focus</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  {todayTasks.map((task) => {
+                    const [y, m, d] = task.end_date.split("-").map(Number);
+                    const end = new Date(y, m - 1, d);
+                    const isOverdue = end < today && task.status !== "Done";
+                    return (
+                      <div key={task.id} className="flex items-center gap-3 p-3 rounded-md border border-border bg-card">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm font-medium text-foreground truncate">{task.name}</span>
+                            <StatusBadge status={task.status} />
+                            {isOverdue && <span className="text-[10px] font-medium text-destructive">OVERDUE</span>}
+                          </div>
+                          <span className="text-xs text-muted-foreground">{task.start_date} → {task.end_date}</span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </CardContent>
+            </Card>
+          ) : null;
+        })()}
+
         <Card>
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
