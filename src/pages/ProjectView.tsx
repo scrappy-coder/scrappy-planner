@@ -143,11 +143,23 @@ const ProjectView = () => {
           <SummaryCard icon={<CheckCircle2 className="h-4 w-4 text-status-done" />} label="Completed" value={summary.completedTasks} />
           <SummaryCard icon={<AlertTriangle className="h-4 w-4 text-status-at-risk" />} label="Overdue" value={summary.overdueTasks} />
           <SummaryCard icon={<Clock className="h-4 w-4 text-orange-500" />} label="Behind Schedule" value={summary.behindSchedule} />
-          <SummaryCard
-            icon={<Clock className="h-4 w-4 text-muted-foreground" />}
-            label="Next Due"
-            value={summary.nextDueDate ? (() => { const [y,m,d] = summary.nextDueDate!.split("-").map(Number); return new Date(y,m-1,d).toLocaleDateString("en-US", { month: "short", day: "numeric" }); })() : "—"}
-          />
+          {summary.nextDueDate ? (
+            <SummaryCardWithTooltip
+              icon={<Clock className="h-4 w-4 text-muted-foreground" />}
+              label="Next Due"
+              value={(() => { const [y,m,d] = summary.nextDueDate!.split("-").map(Number); return new Date(y,m-1,d).toLocaleDateString("en-US", { month: "short", day: "numeric" }); })()}
+              tooltipContent={
+                <div>
+                  <p className="text-xs font-semibold mb-1">Tasks due next:</p>
+                  {tasks.filter((t) => t.end_date === summary.nextDueDate && t.status !== "Done").map((t) => (
+                    <p key={t.id} className="text-xs">• {t.name}</p>
+                  ))}
+                </div>
+              }
+            />
+          ) : (
+            <SummaryCard icon={<Clock className="h-4 w-4 text-muted-foreground" />} label="Next Due" value="—" />
+          )}
         </div>
 
         <Card>
