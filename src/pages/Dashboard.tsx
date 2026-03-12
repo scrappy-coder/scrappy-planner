@@ -12,6 +12,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Plus, FolderOpen, Trash2, LayoutDashboard, Loader2, CalendarDays, CheckCircle2, AlertTriangle, Clock, Info } from "lucide-react";
+import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { ProjectGantt } from "@/components/ProjectGantt";
 import { CompletionChart } from "@/components/CompletionChart";
@@ -74,7 +75,26 @@ function SummaryTiles({ projects, tasks }: { projects: Project[]; tasks: Task[] 
         <Card>
           <CardContent className="py-4 px-5">
             <div className="flex items-center gap-2 mb-1"><Clock className="h-4 w-4 text-muted-foreground" /><p className="text-xs text-muted-foreground">Next Due</p></div>
-            <p className="text-2xl font-bold text-foreground">{nextDueFormatted}</p>
+            {summary.nextDueDate ? (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <p className="text-2xl font-bold text-foreground cursor-default">{nextDueFormatted}</p>
+                </TooltipTrigger>
+                <TooltipContent side="bottom" className="max-w-xs">
+                  <p className="text-xs font-semibold mb-1">Projects with next due tasks:</p>
+                  {(() => {
+                    const dueTasks = tasks.filter((t) => t.end_date === summary.nextDueDate && t.status !== "Done");
+                    const projectIds = [...new Set(dueTasks.map((t) => t.project_id))];
+                    return projectIds.map((pid) => {
+                      const proj = projects.find((p) => p.id === pid);
+                      return <p key={pid} className="text-xs">• {proj?.name ?? "Unknown"}</p>;
+                    });
+                  })()}
+                </TooltipContent>
+              </Tooltip>
+            ) : (
+              <p className="text-2xl font-bold text-foreground">—</p>
+            )}
           </CardContent>
         </Card>
       </div>

@@ -15,6 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ArrowLeft, Plus, Pencil, Trash2, Check, X, CalendarDays, CheckCircle2, AlertTriangle, Clock, Loader2, CornerDownRight, TableProperties } from "lucide-react";
+import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 
 const ProjectView = () => {
   const { id } = useParams<{ id: string }>();
@@ -143,11 +144,23 @@ const ProjectView = () => {
           <SummaryCard icon={<CheckCircle2 className="h-4 w-4 text-status-done" />} label="Completed" value={summary.completedTasks} />
           <SummaryCard icon={<AlertTriangle className="h-4 w-4 text-status-at-risk" />} label="Overdue" value={summary.overdueTasks} />
           <SummaryCard icon={<Clock className="h-4 w-4 text-orange-500" />} label="Behind Schedule" value={summary.behindSchedule} />
-          <SummaryCard
-            icon={<Clock className="h-4 w-4 text-muted-foreground" />}
-            label="Next Due"
-            value={summary.nextDueDate ? (() => { const [y,m,d] = summary.nextDueDate!.split("-").map(Number); return new Date(y,m-1,d).toLocaleDateString("en-US", { month: "short", day: "numeric" }); })() : "—"}
-          />
+          {summary.nextDueDate ? (
+            <SummaryCardWithTooltip
+              icon={<Clock className="h-4 w-4 text-muted-foreground" />}
+              label="Next Due"
+              value={(() => { const [y,m,d] = summary.nextDueDate!.split("-").map(Number); return new Date(y,m-1,d).toLocaleDateString("en-US", { month: "short", day: "numeric" }); })()}
+              tooltipContent={
+                <div>
+                  <p className="text-xs font-semibold mb-1">Tasks due next:</p>
+                  {tasks.filter((t) => t.end_date === summary.nextDueDate && t.status !== "Done").map((t) => (
+                    <p key={t.id} className="text-xs">• {t.name}</p>
+                  ))}
+                </div>
+              }
+            />
+          ) : (
+            <SummaryCard icon={<Clock className="h-4 w-4 text-muted-foreground" />} label="Next Due" value="—" />
+          )}
         </div>
 
         <Card>
@@ -314,6 +327,24 @@ function SummaryCard({ icon, label, value }: { icon: React.ReactNode; label: str
       <CardContent className="py-3 px-4">
         <div className="flex items-center gap-2 mb-1">{icon}<span className="text-xs text-muted-foreground">{label}</span></div>
         <p className="text-xl font-semibold text-foreground">{value}</p>
+      </CardContent>
+    </Card>
+  );
+}
+
+function SummaryCardWithTooltip({ icon, label, value, tooltipContent }: { icon: React.ReactNode; label: string; value: string | number; tooltipContent: React.ReactNode }) {
+  return (
+    <Card>
+      <CardContent className="py-3 px-4">
+        <div className="flex items-center gap-2 mb-1">{icon}<span className="text-xs text-muted-foreground">{label}</span></div>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <p className="text-xl font-semibold text-foreground cursor-default">{value}</p>
+          </TooltipTrigger>
+          <TooltipContent side="bottom" className="max-w-xs">
+            {tooltipContent}
+          </TooltipContent>
+        </Tooltip>
       </CardContent>
     </Card>
   );
