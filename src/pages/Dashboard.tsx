@@ -169,6 +169,57 @@ const Dashboard = () => {
         {projects.length > 0 && (
           <SummaryTiles projects={projects} tasks={allTasks} />
         )}
+
+        {projects.length > 0 && (() => {
+          const today = new Date();
+          today.setHours(0, 0, 0, 0);
+          const todayTasks = allTasks.filter((t) => {
+            if (t.status === "Done") return false;
+            if (t.status === "In Progress" || t.status === "In Review") return true;
+            const [y, m, d] = t.end_date.split("-").map(Number);
+            const end = new Date(y, m - 1, d);
+            if (end < today) return true;
+            const [sy, sm, sd] = t.start_date.split("-").map(Number);
+            const start = new Date(sy, sm - 1, sd);
+            if (start <= today && t.status === "Not Started") return true;
+            return false;
+          });
+          return todayTasks.length > 0 ? (
+            <Card>
+              <CardContent className="py-4 px-5">
+                <h3 className="text-sm font-semibold text-foreground mb-3">Today's Focus</h3>
+                <div className="space-y-2">
+                  {todayTasks.map((task) => {
+                    const proj = projects.find((p) => p.id === task.project_id);
+                    const [y, m, d] = task.end_date.split("-").map(Number);
+                    const end = new Date(y, m - 1, d);
+                    const isOverdue = end < today;
+                    return (
+                      <div
+                        key={task.id}
+                        className="flex items-center gap-3 p-3 rounded-md border border-border bg-card hover:bg-accent/50 transition-colors cursor-pointer"
+                        onClick={() => navigate(`/project/${task.project_id}`)}
+                      >
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm font-medium text-foreground truncate">{task.name}</span>
+                            <StatusBadge status={task.status} />
+                            {isOverdue && <span className="text-[10px] font-medium text-destructive">OVERDUE</span>}
+                          </div>
+                          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                            <span>{proj?.name ?? "Unknown"}</span>
+                            <span>· {task.start_date} → {task.end_date}</span>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </CardContent>
+            </Card>
+          ) : null;
+        })()}
+
         {projects.length > 0 && allTasks.length > 0 && (
           <div className="space-y-6">
             <Card>

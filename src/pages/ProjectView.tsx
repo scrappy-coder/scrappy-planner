@@ -169,10 +169,14 @@ const ProjectView = () => {
           const todayStr = today.toISOString().split("T")[0];
           const todayTasks = tasks.filter((t) => {
             if (t.status === "Done") return false;
-            if (t.status === "In Progress") return true;
+            if (t.status === "In Progress" || t.status === "In Review") return true;
             const [y, m, d] = t.end_date.split("-").map(Number);
             const end = new Date(y, m - 1, d);
-            return end < today;
+            if (end < today) return true;
+            const [sy, sm, sd] = t.start_date.split("-").map(Number);
+            const start = new Date(sy, sm - 1, sd);
+            if (start <= today && t.status === "Not Started") return true;
+            return false;
           });
           return todayTasks.length > 0 ? (
             <Card>
