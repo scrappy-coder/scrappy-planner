@@ -332,4 +332,22 @@ function SummaryCard({ icon, label, value }: { icon: React.ReactNode; label: str
   );
 }
 
+function SummaryCardWithTooltip({ icon, label, value, tooltipContent }: { icon: React.ReactNode; label: string; value: string | number; tooltipContent: React.ReactNode }) {
+  return (
+    <Card>
+      <CardContent className="py-3 px-4">
+        <div className="flex items-center gap-2 mb-1">{icon}<span className="text-xs text-muted-foreground">{label}</span></div>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <p className="text-xl font-semibold text-foreground cursor-default">{value}</p>
+          </TooltipTrigger>
+          <TooltipContent side="bottom" className="max-w-xs">
+            {tooltipContent}
+          </TooltipContent>
+        </Tooltip>
+      </CardContent>
+    </Card>
+  );
+}
+
 export default ProjectView;
