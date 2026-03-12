@@ -184,11 +184,25 @@ const Dashboard = () => {
             if (start <= today && t.status === "Not Started") return true;
             return false;
           });
+          const statusOrder: Record<string, number> = { "In Progress": 0, "In Review": 1, "Not Started": 2, "Blocked": 3 };
+          todayTasks.sort((a, b) => {
+            const aEnd = new Date(...a.end_date.split("-").map(Number) as [number, number, number]);
+            aEnd.setMonth(aEnd.getMonth() - 1);
+            const bEnd = new Date(...b.end_date.split("-").map(Number) as [number, number, number]);
+            bEnd.setMonth(bEnd.getMonth() - 1);
+            const aOverdue = aEnd < today ? 1 : 0;
+            const bOverdue = bEnd < today ? 1 : 0;
+            if (aOverdue !== bOverdue) return bOverdue - aOverdue;
+            const aStatus = statusOrder[a.status] ?? 9;
+            const bStatus = statusOrder[b.status] ?? 9;
+            if (aStatus !== bStatus) return aStatus - bStatus;
+            return aEnd.getTime() - bEnd.getTime();
+          });
           return todayTasks.length > 0 ? (
             <Card>
               <CardContent className="py-4 px-5">
                 <h3 className="text-sm font-semibold text-foreground mb-3">Today's Focus</h3>
-                <div className="space-y-2">
+                <div className="space-y-2 max-h-[272px] overflow-y-auto pr-1">
                   {todayTasks.map((task) => {
                     const proj = projects.find((p) => p.id === task.project_id);
                     const [y, m, d] = task.end_date.split("-").map(Number);
