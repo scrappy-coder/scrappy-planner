@@ -173,6 +173,8 @@ const Dashboard = () => {
         {projects.length > 0 && (() => {
           const today = new Date();
           today.setHours(0, 0, 0, 0);
+          const inOneWeek = new Date(today);
+          inOneWeek.setDate(inOneWeek.getDate() + 7);
           const todayTasks = allTasks.filter((t) => {
             if (t.status === "Done") return false;
             if (t.status === "In Progress" || t.status === "In Review") return true;
@@ -182,6 +184,8 @@ const Dashboard = () => {
             const [sy, sm, sd] = t.start_date.split("-").map(Number);
             const start = new Date(sy, sm - 1, sd);
             if (start <= today && t.status === "Not Started") return true;
+            // Not Started but within a week of planned start date
+            if (t.status === "Not Started" && start > today && start <= inOneWeek) return true;
             return false;
           });
           const statusOrder: Record<string, number> = { "In Progress": 0, "In Review": 1, "Not Started": 2, "Blocked": 3 };
