@@ -300,8 +300,8 @@ const Dashboard = () => {
               return (
                 <Card
                   key={project.id}
-                  className="cursor-pointer hover:shadow-md transition-shadow border-border"
-                  onClick={() => navigate(`/project/${project.id}`)}
+                  className={`${isDemo ? "opacity-80" : "cursor-pointer"} hover:shadow-md transition-shadow border-border`}
+                  onClick={() => !isDemo && navigate(`/project/${project.id}`)}
                 >
                   <CardContent className="flex items-center justify-between py-4 px-5">
                     <div className="flex-1 min-w-0">
