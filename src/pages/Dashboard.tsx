@@ -175,6 +175,11 @@ const Dashboard = () => {
       </header>
 
       <main className="container max-w-5xl mx-auto px-4 py-8 space-y-8">
+        {isDemo && (
+          <div className="rounded-lg border border-primary/30 bg-primary/5 px-4 py-3 text-sm text-primary">
+            👋 Welcome! This is sample data to show you what the app looks like. Create a project to get started with your own data.
+          </div>
+        )}
         {projects.length > 0 && (
           <SummaryTiles projects={projects} tasks={allTasks} />
         )}
