@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { Project, Task, EFFORT_VALUES, EFFORT_SIZES } from "@/lib/types";
 import { getProjects, createProject, deleteProject, getTasks, seedData, updateProject } from "@/lib/store";
+import { DEMO_PROJECTS, DEMO_TASKS } from "@/lib/demoData";
 import { assessRisk, getProjectSummary } from "@/lib/risk";
 import { getAdjacentQuarters } from "@/lib/fiscal";
 import { parseLocalDate } from "@/lib/utils";
@@ -109,12 +110,20 @@ const Dashboard = () => {
   const [showCreate, setShowCreate] = useState(false);
   const [newName, setNewName] = useState("");
   const [loading, setLoading] = useState(true);
+  const [isDemo, setIsDemo] = useState(false);
 
   const refresh = useCallback(async () => {
     try {
       const [p, t] = await Promise.all([getProjects(), getTasks()]);
-      setProjects(p);
-      setAllTasks(t);
+      if (p.length === 0 && t.length === 0) {
+        setProjects(DEMO_PROJECTS);
+        setAllTasks(DEMO_TASKS);
+        setIsDemo(true);
+      } else {
+        setProjects(p);
+        setAllTasks(t);
+        setIsDemo(false);
+      }
     } catch (err) {
       console.error("Failed to load data:", err);
     } finally {
@@ -166,6 +175,11 @@ const Dashboard = () => {
       </header>
 
       <main className="container max-w-5xl mx-auto px-4 py-8 space-y-8">
+        {isDemo && (
+          <div className="rounded-lg border border-primary/30 bg-primary/5 px-4 py-3 text-sm text-primary">
+            👋 Welcome! This is sample data to show you what the app looks like. Create a project to get started with your own data.
+          </div>
+        )}
         {projects.length > 0 && (
           <SummaryTiles projects={projects} tasks={allTasks} />
         )}
@@ -218,8 +232,8 @@ const Dashboard = () => {
                     return (
                       <div
                         key={task.id}
-                        className="flex items-center gap-3 p-3 rounded-md border border-border bg-card hover:bg-accent/50 transition-colors cursor-pointer"
-                        onClick={() => navigate(`/project/${task.project_id}`)}
+                        className={`flex items-center gap-3 p-3 rounded-md border border-border bg-card hover:bg-accent/50 transition-colors ${isDemo ? "" : "cursor-pointer"}`}
+                        onClick={() => !isDemo && navigate(`/project/${task.project_id}`)}
                       >
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2">
@@ -286,32 +300,34 @@ const Dashboard = () => {
               return (
                 <Card
                   key={project.id}
-                  className="cursor-pointer hover:shadow-md transition-shadow border-border"
-                  onClick={() => navigate(`/project/${project.id}`)}
+                  className={`${isDemo ? "opacity-80" : "cursor-pointer"} hover:shadow-md transition-shadow border-border`}
+                  onClick={() => !isDemo && navigate(`/project/${project.id}`)}
                 >
                   <CardContent className="flex items-center justify-between py-4 px-5">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-3 mb-1.5">
                         <h2 className="font-medium text-foreground truncate">{project.name}</h2>
-                        <Select
-                          value={project.fiscal_quarter || ""}
-                          onValueChange={async (v) => {
-                            await updateProject(project.id, { fiscal_quarter: v });
-                            refresh();
-                          }}
-                        >
-                          <SelectTrigger
-                            className="w-32 h-6 text-xs"
-                            onClick={(e) => e.stopPropagation()}
+                        {!isDemo && (
+                          <Select
+                            value={project.fiscal_quarter || ""}
+                            onValueChange={async (v) => {
+                              await updateProject(project.id, { fiscal_quarter: v });
+                              refresh();
+                            }}
                           >
-                            <SelectValue placeholder="Set quarter" />
-                          </SelectTrigger>
-                          <SelectContent onClick={(e) => e.stopPropagation()}>
-                            {getAdjacentQuarters(4).map((q) => (
-                              <SelectItem key={q.label} value={q.label}>{q.label}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                            <SelectTrigger
+                              className="w-32 h-6 text-xs"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              <SelectValue placeholder="Set quarter" />
+                            </SelectTrigger>
+                            <SelectContent onClick={(e) => e.stopPropagation()}>
+                              {getAdjacentQuarters(4).map((q) => (
+                                <SelectItem key={q.label} value={q.label}>{q.label}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        )}
                       </div>
                       <div className="flex items-center gap-4">
                         <RiskBadge level={risk.level} reasons={risk.reasons} />
@@ -320,14 +336,16 @@ const Dashboard = () => {
                         </span>
                       </div>
                     </div>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="text-muted-foreground hover:text-destructive shrink-0"
-                      onClick={(e) => handleDelete(project.id, e)}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
+                    {!isDemo && (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="text-muted-foreground hover:text-destructive shrink-0"
+                        onClick={(e) => handleDelete(project.id, e)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    )}
                   </CardContent>
                 </Card>
               );
