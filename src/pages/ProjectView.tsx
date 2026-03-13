@@ -167,6 +167,8 @@ const ProjectView = () => {
           const today = new Date();
           today.setHours(0, 0, 0, 0);
           const todayStr = today.toISOString().split("T")[0];
+          const inOneWeek = new Date(today);
+          inOneWeek.setDate(inOneWeek.getDate() + 7);
           const todayTasks = tasks.filter((t) => {
             if (t.status === "Done") return false;
             if (t.status === "In Progress" || t.status === "In Review") return true;
@@ -176,6 +178,7 @@ const ProjectView = () => {
             const [sy, sm, sd] = t.start_date.split("-").map(Number);
             const start = new Date(sy, sm - 1, sd);
             if (start <= today && t.status === "Not Started") return true;
+            if (t.status === "Not Started" && start > today && start <= inOneWeek) return true;
             return false;
           });
           const statusOrder: Record<string, number> = { "In Progress": 0, "In Review": 1, "Not Started": 2, "Blocked": 3 };
@@ -203,6 +206,9 @@ const ProjectView = () => {
                     const [y, m, d] = task.end_date.split("-").map(Number);
                     const end = new Date(y, m - 1, d);
                     const isOverdue = end < today && task.status !== "Done";
+                    const [sy2, sm2, sd2] = task.start_date.split("-").map(Number);
+                    const start = new Date(sy2, sm2 - 1, sd2);
+                    const isBehind = !isOverdue && ((start < today && task.status === "Not Started") || (end < today && task.status === "In Progress"));
                     return (
                       <div key={task.id} className="flex items-center gap-3 p-3 rounded-md border border-border bg-card">
                         <div className="flex-1 min-w-0">
@@ -210,6 +216,7 @@ const ProjectView = () => {
                             <span className="text-sm font-medium text-foreground truncate">{task.name}</span>
                             <StatusBadge status={task.status} />
                             {isOverdue && <span className="text-[10px] font-medium text-destructive">OVERDUE</span>}
+                            {isBehind && <span className="text-[10px] font-medium text-orange-500">BEHIND</span>}
                           </div>
                           <span className="text-xs text-muted-foreground">{task.start_date} → {task.end_date}</span>
                         </div>

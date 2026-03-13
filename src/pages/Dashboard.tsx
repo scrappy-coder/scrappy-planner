@@ -173,6 +173,8 @@ const Dashboard = () => {
         {projects.length > 0 && (() => {
           const today = new Date();
           today.setHours(0, 0, 0, 0);
+          const inOneWeek = new Date(today);
+          inOneWeek.setDate(inOneWeek.getDate() + 7);
           const todayTasks = allTasks.filter((t) => {
             if (t.status === "Done") return false;
             if (t.status === "In Progress" || t.status === "In Review") return true;
@@ -182,6 +184,8 @@ const Dashboard = () => {
             const [sy, sm, sd] = t.start_date.split("-").map(Number);
             const start = new Date(sy, sm - 1, sd);
             if (start <= today && t.status === "Not Started") return true;
+            // Not Started but within a week of planned start date
+            if (t.status === "Not Started" && start > today && start <= inOneWeek) return true;
             return false;
           });
           const statusOrder: Record<string, number> = { "In Progress": 0, "In Review": 1, "Not Started": 2, "Blocked": 3 };
@@ -208,6 +212,9 @@ const Dashboard = () => {
                     const [y, m, d] = task.end_date.split("-").map(Number);
                     const end = new Date(y, m - 1, d);
                     const isOverdue = end < today;
+                    const [sy2, sm2, sd2] = task.start_date.split("-").map(Number);
+                    const start = new Date(sy2, sm2 - 1, sd2);
+                    const isBehind = !isOverdue && ((start < today && task.status === "Not Started") || (end < today && task.status === "In Progress"));
                     return (
                       <div
                         key={task.id}
@@ -219,6 +226,7 @@ const Dashboard = () => {
                             <span className="text-sm font-medium text-foreground truncate">{task.name}</span>
                             <StatusBadge status={task.status} />
                             {isOverdue && <span className="text-[10px] font-medium text-destructive">OVERDUE</span>}
+                            {isBehind && <span className="text-[10px] font-medium text-orange-500">BEHIND</span>}
                           </div>
                           <div className="flex items-center gap-2 text-xs text-muted-foreground">
                             <span>{proj?.name ?? "Unknown"}</span>
