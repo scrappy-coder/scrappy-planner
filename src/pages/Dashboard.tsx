@@ -110,12 +110,20 @@ const Dashboard = () => {
   const [showCreate, setShowCreate] = useState(false);
   const [newName, setNewName] = useState("");
   const [loading, setLoading] = useState(true);
+  const [isDemo, setIsDemo] = useState(false);
 
   const refresh = useCallback(async () => {
     try {
       const [p, t] = await Promise.all([getProjects(), getTasks()]);
-      setProjects(p);
-      setAllTasks(t);
+      if (p.length === 0 && t.length === 0) {
+        setProjects(DEMO_PROJECTS);
+        setAllTasks(DEMO_TASKS);
+        setIsDemo(true);
+      } else {
+        setProjects(p);
+        setAllTasks(t);
+        setIsDemo(false);
+      }
     } catch (err) {
       console.error("Failed to load data:", err);
     } finally {
