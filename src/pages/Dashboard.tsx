@@ -307,25 +307,27 @@ const Dashboard = () => {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-3 mb-1.5">
                         <h2 className="font-medium text-foreground truncate">{project.name}</h2>
-                        <Select
-                          value={project.fiscal_quarter || ""}
-                          onValueChange={async (v) => {
-                            await updateProject(project.id, { fiscal_quarter: v });
-                            refresh();
-                          }}
-                        >
-                          <SelectTrigger
-                            className="w-32 h-6 text-xs"
-                            onClick={(e) => e.stopPropagation()}
+                        {!isDemo && (
+                          <Select
+                            value={project.fiscal_quarter || ""}
+                            onValueChange={async (v) => {
+                              await updateProject(project.id, { fiscal_quarter: v });
+                              refresh();
+                            }}
                           >
-                            <SelectValue placeholder="Set quarter" />
-                          </SelectTrigger>
-                          <SelectContent onClick={(e) => e.stopPropagation()}>
-                            {getAdjacentQuarters(4).map((q) => (
-                              <SelectItem key={q.label} value={q.label}>{q.label}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                            <SelectTrigger
+                              className="w-32 h-6 text-xs"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              <SelectValue placeholder="Set quarter" />
+                            </SelectTrigger>
+                            <SelectContent onClick={(e) => e.stopPropagation()}>
+                              {getAdjacentQuarters(4).map((q) => (
+                                <SelectItem key={q.label} value={q.label}>{q.label}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        )}
                       </div>
                       <div className="flex items-center gap-4">
                         <RiskBadge level={risk.level} reasons={risk.reasons} />
@@ -334,13 +336,16 @@ const Dashboard = () => {
                         </span>
                       </div>
                     </div>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="text-muted-foreground hover:text-destructive shrink-0"
-                      onClick={(e) => handleDelete(project.id, e)}
-                    >
-                      <Trash2 className="h-4 w-4" />
+                    {!isDemo && (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="text-muted-foreground hover:text-destructive shrink-0"
+                        onClick={(e) => handleDelete(project.id, e)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    )}
                     </Button>
                   </CardContent>
                 </Card>
