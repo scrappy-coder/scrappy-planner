@@ -232,8 +232,8 @@ const Dashboard = () => {
                     return (
                       <div
                         key={task.id}
-                        className="flex items-center gap-3 p-3 rounded-md border border-border bg-card hover:bg-accent/50 transition-colors cursor-pointer"
-                        onClick={() => navigate(`/project/${task.project_id}`)}
+                        className={`flex items-center gap-3 p-3 rounded-md border border-border bg-card hover:bg-accent/50 transition-colors ${isDemo ? "" : "cursor-pointer"}`}
+                        onClick={() => !isDemo && navigate(`/project/${task.project_id}`)}
                       >
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2">
