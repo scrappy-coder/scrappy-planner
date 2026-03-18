@@ -169,10 +169,13 @@ const Dashboard = () => {
             <LayoutDashboard className="h-5 w-5 text-primary" />
             <h1 className="text-lg font-semibold text-foreground">Quarterly Planner</h1>
           </div>
-          <Button size="sm" onClick={() => setShowCreate(true)}>
-            <Plus className="h-4 w-4 mr-1.5" />
-            New Project
-          </Button>
+          <div className="flex items-center gap-2">
+            <ThemeToggle />
+            <Button size="sm" onClick={() => setShowCreate(true)}>
+              <Plus className="h-4 w-4 mr-1.5" />
+              New Project
+            </Button>
+          </div>
         </div>
       </header>
 
