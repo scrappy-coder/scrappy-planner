@@ -16,6 +16,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ArrowLeft, Plus, Pencil, Trash2, Check, X, CalendarDays, CheckCircle2, AlertTriangle, Clock, Loader2, CornerDownRight, TableProperties } from "lucide-react";
 import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 const ProjectView = () => {
   const { id } = useParams<{ id: string }>();
