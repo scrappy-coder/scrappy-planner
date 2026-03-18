@@ -16,6 +16,7 @@ import { Plus, FolderOpen, Trash2, LayoutDashboard, Loader2, CalendarDays, Check
 import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { ProjectGantt } from "@/components/ProjectGantt";
+import { MemoPad } from "@/components/MemoPad";
 import { CompletionChart } from "@/components/CompletionChart";
 import { BurnDownChart } from "@/components/BurnDownChart";
 
