@@ -114,7 +114,6 @@ const ProjectView = () => {
             </Button>
             <ThemeToggle />
           </div>
-          </Button>
           <div className="flex items-center gap-3">
             {editingName ? (
               <div className="flex items-center gap-2">
