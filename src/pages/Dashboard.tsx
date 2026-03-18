@@ -13,6 +13,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Plus, FolderOpen, Trash2, LayoutDashboard, Loader2, CalendarDays, CheckCircle2, AlertTriangle, Clock, Info } from "lucide-react";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { ProjectGantt } from "@/components/ProjectGantt";
