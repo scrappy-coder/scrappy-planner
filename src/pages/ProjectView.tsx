@@ -16,6 +16,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ArrowLeft, Plus, Pencil, Trash2, Check, X, CalendarDays, CheckCircle2, AlertTriangle, Clock, Loader2, CornerDownRight, TableProperties } from "lucide-react";
 import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 const ProjectView = () => {
   const { id } = useParams<{ id: string }>();
@@ -107,9 +108,12 @@ const ProjectView = () => {
     <div className="min-h-screen bg-background">
       <header className="border-b border-border bg-card">
         <div className="container max-w-5xl mx-auto px-4 py-4">
-          <Button variant="ghost" size="sm" onClick={() => navigate("/")} className="mb-3 -ml-2 text-muted-foreground">
-            <ArrowLeft className="h-4 w-4 mr-1" /> Back
-          </Button>
+          <div className="flex items-center justify-between mb-3">
+            <Button variant="ghost" size="sm" onClick={() => navigate("/")} className="-ml-2 text-muted-foreground">
+              <ArrowLeft className="h-4 w-4 mr-1" /> Back
+            </Button>
+            <ThemeToggle />
+          </div>
           <div className="flex items-center gap-3">
             {editingName ? (
               <div className="flex items-center gap-2">
