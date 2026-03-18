@@ -108,8 +108,12 @@ const ProjectView = () => {
     <div className="min-h-screen bg-background">
       <header className="border-b border-border bg-card">
         <div className="container max-w-5xl mx-auto px-4 py-4">
-          <Button variant="ghost" size="sm" onClick={() => navigate("/")} className="mb-3 -ml-2 text-muted-foreground">
-            <ArrowLeft className="h-4 w-4 mr-1" /> Back
+          <div className="flex items-center justify-between mb-3">
+            <Button variant="ghost" size="sm" onClick={() => navigate("/")} className="-ml-2 text-muted-foreground">
+              <ArrowLeft className="h-4 w-4 mr-1" /> Back
+            </Button>
+            <ThemeToggle />
+          </div>
           </Button>
           <div className="flex items-center gap-3">
             {editingName ? (
