@@ -16,6 +16,7 @@ import { Plus, FolderOpen, Trash2, LayoutDashboard, Loader2, CalendarDays, Check
 import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { ProjectGantt } from "@/components/ProjectGantt";
+import { MemoPad } from "@/components/MemoPad";
 import { CompletionChart } from "@/components/CompletionChart";
 import { BurnDownChart } from "@/components/BurnDownChart";
 
@@ -217,43 +218,48 @@ const Dashboard = () => {
             return aEnd.getTime() - bEnd.getTime();
           });
           return todayTasks.length > 0 ? (
-            <Card>
-              <CardContent className="py-4 px-5">
-                <h3 className="text-sm font-semibold text-foreground mb-3">Today's Focus</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-2 max-h-[272px] overflow-y-auto pr-1">
-                  {todayTasks.map((task) => {
-                    const proj = projects.find((p) => p.id === task.project_id);
-                    const [y, m, d] = task.end_date.split("-").map(Number);
-                    const end = new Date(y, m - 1, d);
-                    const isOverdue = end < today;
-                    const [sy2, sm2, sd2] = task.start_date.split("-").map(Number);
-                    const start = new Date(sy2, sm2 - 1, sd2);
-                    const isBehind = !isOverdue && ((start < today && task.status === "Not Started") || (end < today && task.status === "In Progress"));
-                    return (
-                      <div
-                        key={task.id}
-                        className={`flex items-center gap-3 p-3 rounded-md border border-border bg-card hover:bg-accent/50 transition-colors ${isDemo ? "" : "cursor-pointer"}`}
-                        onClick={() => !isDemo && navigate(`/project/${task.project_id}`)}
-                      >
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2">
-                            <span className="text-sm font-medium text-foreground truncate">{task.name}</span>
-                            <StatusBadge status={task.status} />
-                            {isOverdue && <span className="text-[10px] font-medium text-destructive">OVERDUE</span>}
-                            {isBehind && <span className="text-[10px] font-medium text-orange-500">BEHIND</span>}
-                          </div>
-                          <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                            <span>{proj?.name ?? "Unknown"}</span>
-                            <span>· {task.start_date} → {task.end_date}</span>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <Card className="lg:col-span-2">
+                <CardContent className="py-4 px-5">
+                  <h3 className="text-sm font-semibold text-foreground mb-3">Today's Focus</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2 max-h-[272px] overflow-y-auto pr-1">
+                    {todayTasks.map((task) => {
+                      const proj = projects.find((p) => p.id === task.project_id);
+                      const [y, m, d] = task.end_date.split("-").map(Number);
+                      const end = new Date(y, m - 1, d);
+                      const isOverdue = end < today;
+                      const [sy2, sm2, sd2] = task.start_date.split("-").map(Number);
+                      const start = new Date(sy2, sm2 - 1, sd2);
+                      const isBehind = !isOverdue && ((start < today && task.status === "Not Started") || (end < today && task.status === "In Progress"));
+                      return (
+                        <div
+                          key={task.id}
+                          className={`flex items-center gap-3 p-3 rounded-md border border-border bg-card hover:bg-accent/50 transition-colors ${isDemo ? "" : "cursor-pointer"}`}
+                          onClick={() => !isDemo && navigate(`/project/${task.project_id}`)}
+                        >
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2">
+                              <span className="text-sm font-medium text-foreground truncate">{task.name}</span>
+                              <StatusBadge status={task.status} />
+                              {isOverdue && <span className="text-[10px] font-medium text-destructive">OVERDUE</span>}
+                              {isBehind && <span className="text-[10px] font-medium text-orange-500">BEHIND</span>}
+                            </div>
+                            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                              <span>{proj?.name ?? "Unknown"}</span>
+                              <span>· {task.start_date} → {task.end_date}</span>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </CardContent>
-            </Card>
-          ) : null;
+                      );
+                    })}
+                  </div>
+                </CardContent>
+              </Card>
+              <MemoPad />
+            </div>
+          ) : (
+            <MemoPad />
+          );
         })()}
 
         {projects.length > 0 && allTasks.length > 0 && (
