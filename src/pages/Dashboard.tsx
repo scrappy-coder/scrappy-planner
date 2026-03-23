@@ -108,6 +108,7 @@ function SummaryTiles({ projects, tasks }: { projects: Project[]; tasks: Task[] 
 
 const Dashboard = () => {
   const navigate = useNavigate();
+  const { signOut } = useAuth();
   const [projects, setProjects] = useState<Project[]>([]);
   const [allTasks, setAllTasks] = useState<Task[]>([]);
   const [showCreate, setShowCreate] = useState(false);
