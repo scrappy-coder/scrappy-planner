@@ -40,10 +40,11 @@ export function MemoPad() {
   const save = useCallback(async (content: string, id: string | null) => {
     setSaving(true);
     try {
+      const user_id = await getUserId();
       if (id) {
         await supabase.from("notes").update({ content, updated_at: new Date().toISOString() }).eq("id", id);
       } else {
-        const { data } = await supabase.from("notes").insert({ content }).select("id").single();
+        const { data } = await supabase.from("notes").insert({ content, user_id }).select("id").single();
         if (data) setNoteId(data.id);
       }
     } finally {
