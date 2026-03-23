@@ -173,6 +173,9 @@ const Dashboard = () => {
           </div>
           <div className="flex items-center gap-2">
             <ThemeToggle />
+            <Button variant="ghost" size="icon" onClick={signOut} className="text-muted-foreground hover:text-destructive">
+              <LogOut className="h-4 w-4" />
+            </Button>
             <Button size="sm" onClick={() => setShowCreate(true)}>
               <Plus className="h-4 w-4 mr-1.5" />
               New Project
