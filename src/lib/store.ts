@@ -1,6 +1,12 @@
 import { supabase } from "@/integrations/supabase/client";
 import { Project, Task, TaskStatus } from "./types";
 
+async function getUserId(): Promise<string> {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error("Not authenticated");
+  return user.id;
+}
+
 export async function getProjects(): Promise<Project[]> {
   const { data, error } = await supabase
     .from("projects")
@@ -11,9 +17,10 @@ export async function getProjects(): Promise<Project[]> {
 }
 
 export async function createProject(name: string): Promise<Project> {
+  const user_id = await getUserId();
   const { data, error } = await supabase
     .from("projects")
-    .insert({ name })
+    .insert({ name, user_id })
     .select()
     .single();
   if (error) throw error;
@@ -56,6 +63,7 @@ export async function getTasksByProject(projectId: string): Promise<Task[]> {
 }
 
 export async function createTask(task: Omit<Task, "id">): Promise<Task> {
+  const user_id = await getUserId();
   const { data, error } = await supabase
     .from("tasks")
     .insert({
@@ -68,6 +76,7 @@ export async function createTask(task: Omit<Task, "id">): Promise<Task> {
       parent_id: task.parent_id ?? null,
       effort: task.effort ?? "m",
       fiscal_quarter: task.fiscal_quarter ?? "",
+      user_id,
     })
     .select()
     .single();

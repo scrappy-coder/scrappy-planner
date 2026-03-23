@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
+import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { Project, Task, EFFORT_VALUES, EFFORT_SIZES } from "@/lib/types";
 import { getProjects, createProject, deleteProject, getTasks, seedData, updateProject } from "@/lib/store";
@@ -12,7 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, FolderOpen, Trash2, LayoutDashboard, Loader2, CalendarDays, CheckCircle2, AlertTriangle, Clock, Info } from "lucide-react";
+import { Plus, FolderOpen, Trash2, LayoutDashboard, Loader2, CalendarDays, CheckCircle2, AlertTriangle, Clock, Info, LogOut } from "lucide-react";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -107,6 +108,7 @@ function SummaryTiles({ projects, tasks }: { projects: Project[]; tasks: Task[] 
 
 const Dashboard = () => {
   const navigate = useNavigate();
+  const { signOut } = useAuth();
   const [projects, setProjects] = useState<Project[]>([]);
   const [allTasks, setAllTasks] = useState<Task[]>([]);
   const [showCreate, setShowCreate] = useState(false);
@@ -171,6 +173,9 @@ const Dashboard = () => {
           </div>
           <div className="flex items-center gap-2">
             <ThemeToggle />
+            <Button variant="ghost" size="icon" onClick={signOut} className="text-muted-foreground hover:text-destructive">
+              <LogOut className="h-4 w-4" />
+            </Button>
             <Button size="sm" onClick={() => setShowCreate(true)}>
               <Plus className="h-4 w-4 mr-1.5" />
               New Project

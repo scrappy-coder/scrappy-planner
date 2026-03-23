@@ -4,6 +4,12 @@ import { Textarea } from "@/components/ui/textarea";
 import { StickyNote, Cloud, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
+async function getUserId(): Promise<string> {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error("Not authenticated");
+  return user.id;
+}
+
 const DEBOUNCE_MS = 1000;
 
 export function MemoPad() {
@@ -34,10 +40,11 @@ export function MemoPad() {
   const save = useCallback(async (content: string, id: string | null) => {
     setSaving(true);
     try {
+      const user_id = await getUserId();
       if (id) {
         await supabase.from("notes").update({ content, updated_at: new Date().toISOString() }).eq("id", id);
       } else {
-        const { data } = await supabase.from("notes").insert({ content }).select("id").single();
+        const { data } = await supabase.from("notes").insert({ content, user_id }).select("id").single();
         if (data) setNoteId(data.id);
       }
     } finally {
