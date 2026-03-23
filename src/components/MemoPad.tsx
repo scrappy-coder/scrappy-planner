@@ -4,6 +4,12 @@ import { Textarea } from "@/components/ui/textarea";
 import { StickyNote, Cloud, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
+async function getUserId(): Promise<string> {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error("Not authenticated");
+  return user.id;
+}
+
 const DEBOUNCE_MS = 1000;
 
 export function MemoPad() {
