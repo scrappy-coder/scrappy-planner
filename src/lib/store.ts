@@ -17,9 +17,10 @@ export async function getProjects(): Promise<Project[]> {
 }
 
 export async function createProject(name: string): Promise<Project> {
+  const user_id = await getUserId();
   const { data, error } = await supabase
     .from("projects")
-    .insert({ name })
+    .insert({ name, user_id })
     .select()
     .single();
   if (error) throw error;
