@@ -63,6 +63,7 @@ export async function getTasksByProject(projectId: string): Promise<Task[]> {
 }
 
 export async function createTask(task: Omit<Task, "id">): Promise<Task> {
+  const user_id = await getUserId();
   const { data, error } = await supabase
     .from("tasks")
     .insert({
@@ -75,6 +76,7 @@ export async function createTask(task: Omit<Task, "id">): Promise<Task> {
       parent_id: task.parent_id ?? null,
       effort: task.effort ?? "m",
       fiscal_quarter: task.fiscal_quarter ?? "",
+      user_id,
     })
     .select()
     .single();
