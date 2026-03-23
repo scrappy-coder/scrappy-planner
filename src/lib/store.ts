@@ -1,6 +1,12 @@
 import { supabase } from "@/integrations/supabase/client";
 import { Project, Task, TaskStatus } from "./types";
 
+async function getUserId(): Promise<string> {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error("Not authenticated");
+  return user.id;
+}
+
 export async function getProjects(): Promise<Project[]> {
   const { data, error } = await supabase
     .from("projects")
