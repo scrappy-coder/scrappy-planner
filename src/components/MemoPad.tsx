@@ -1,14 +1,9 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
-import { StickyNote, Cloud, Loader2 } from "lucide-react";
+import { StickyNote, Cloud, Loader2, HardDrive } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-
-async function getUserId(): Promise<string> {
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) throw new Error("Not authenticated");
-  return user.id;
-}
+import { isCloudUserCheck } from "@/lib/store";
 
 const DEBOUNCE_MS = 1000;
 
@@ -17,35 +12,46 @@ export function MemoPad() {
   const [noteId, setNoteId] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [loaded, setLoaded] = useState(false);
+  const [isCloud, setIsCloud] = useState(false);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Load note from database on mount
   useEffect(() => {
     (async () => {
-      const { data } = await supabase
-        .from("notes")
-        .select("id, content")
-        .order("updated_at", { ascending: false })
-        .limit(1)
-        .maybeSingle();
+      const cloud = await isCloudUserCheck();
+      setIsCloud(cloud);
 
-      if (data) {
-        setMemo(data.content);
-        setNoteId(data.id);
+      if (cloud) {
+        const { data } = await supabase
+          .from("notes")
+          .select("id, content")
+          .order("updated_at", { ascending: false })
+          .limit(1)
+          .maybeSingle();
+        if (data) {
+          setMemo(data.content);
+          setNoteId(data.id);
+        }
+      } else {
+        setMemo(localStorage.getItem("local_memo") || "");
       }
       setLoaded(true);
     })();
   }, []);
 
-  const save = useCallback(async (content: string, id: string | null) => {
+  const save = useCallback(async (content: string, id: string | null, cloud: boolean) => {
     setSaving(true);
     try {
-      const user_id = await getUserId();
-      if (id) {
-        await supabase.from("notes").update({ content, updated_at: new Date().toISOString() }).eq("id", id);
+      if (cloud) {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+        if (id) {
+          await supabase.from("notes").update({ content, updated_at: new Date().toISOString() }).eq("id", id);
+        } else {
+          const { data } = await supabase.from("notes").insert({ content, user_id: user.id }).select("id").single();
+          if (data) setNoteId(data.id);
+        }
       } else {
-        const { data } = await supabase.from("notes").insert({ content, user_id }).select("id").single();
-        if (data) setNoteId(data.id);
+        localStorage.setItem("local_memo", content);
       }
     } finally {
       setSaving(false);
@@ -55,10 +61,9 @@ export function MemoPad() {
   const handleChange = (value: string) => {
     setMemo(value);
     if (timerRef.current) clearTimeout(timerRef.current);
-    timerRef.current = setTimeout(() => save(value, noteId), DEBOUNCE_MS);
+    timerRef.current = setTimeout(() => save(value, noteId, isCloud), DEBOUNCE_MS);
   };
 
-  // Cleanup timer on unmount
   useEffect(() => () => { if (timerRef.current) clearTimeout(timerRef.current); }, []);
 
   return (
@@ -70,8 +75,8 @@ export function MemoPad() {
           <span className="ml-auto">
             {saving ? (
               <Loader2 className="h-3.5 w-3.5 animate-spin text-muted-foreground" />
-            ) : loaded && noteId ? (
-              <Cloud className="h-3.5 w-3.5 text-muted-foreground" />
+            ) : loaded ? (
+              isCloud ? <Cloud className="h-3.5 w-3.5 text-muted-foreground" /> : <HardDrive className="h-3.5 w-3.5 text-muted-foreground" />
             ) : null}
           </span>
         </div>
