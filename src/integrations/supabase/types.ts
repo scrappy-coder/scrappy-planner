@@ -19,16 +19,19 @@ export type Database = {
           content: string
           id: string
           updated_at: string
+          user_id: string | null
         }
         Insert: {
           content?: string
           id?: string
           updated_at?: string
+          user_id?: string | null
         }
         Update: {
           content?: string
           id?: string
           updated_at?: string
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -38,18 +41,21 @@ export type Database = {
           fiscal_quarter: string
           id: string
           name: string
+          user_id: string | null
         }
         Insert: {
           created_at?: string
           fiscal_quarter?: string
           id?: string
           name: string
+          user_id?: string | null
         }
         Update: {
           created_at?: string
           fiscal_quarter?: string
           id?: string
           name?: string
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -66,6 +72,7 @@ export type Database = {
           project_id: string
           start_date: string
           status: string
+          user_id: string | null
         }
         Insert: {
           created_at?: string
@@ -79,6 +86,7 @@ export type Database = {
           project_id: string
           start_date: string
           status?: string
+          user_id?: string | null
         }
         Update: {
           created_at?: string
@@ -92,6 +100,7 @@ export type Database = {
           project_id?: string
           start_date?: string
           status?: string
+          user_id?: string | null
         }
         Relationships: [
           {
