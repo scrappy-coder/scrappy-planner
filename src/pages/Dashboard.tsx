@@ -166,21 +166,21 @@ const Dashboard = () => {
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b border-border bg-card">
-        <div className="container max-w-5xl mx-auto px-4 py-5 flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <LayoutDashboard className="h-5 w-5 text-primary" />
-            <h1 className="text-lg font-semibold text-foreground">Scrappy Planner</h1>
-          </div>
+        <div className="container max-w-5xl mx-auto px-4 py-5 flex items-center justify-between relative">
           <div className="flex items-center gap-2">
             <ThemeToggle />
             <Button variant="ghost" size="icon" onClick={signOut} className="text-muted-foreground hover:text-destructive">
               <LogOut className="h-4 w-4" />
             </Button>
-            <Button size="sm" onClick={() => setShowCreate(true)}>
-              <Plus className="h-4 w-4 mr-1.5" />
-              New Project
-            </Button>
           </div>
+          <div className="absolute left-1/2 -translate-x-1/2 flex items-center gap-2.5">
+            <LayoutDashboard className="h-5 w-5 text-primary" />
+            <h1 className="text-lg font-semibold text-foreground">Scrappy Planner</h1>
+          </div>
+          <Button size="sm" onClick={() => setShowCreate(true)}>
+            <Plus className="h-4 w-4 mr-1.5" />
+            New Project
+          </Button>
         </div>
       </header>
 
