@@ -20,7 +20,8 @@ const quarters = getAdjacentQuarters(4);
 
 export function TaskForm({ open, onClose, onSave, initialData, parentTask }: TaskFormProps) {
   const [name, setName] = useState(initialData?.name ?? "");
-  const [startDate, setStartDate] = useState(initialData?.start_date ?? parentTask?.start_date ?? "");
+  const today = new Date().toISOString().split("T")[0];
+  const [startDate, setStartDate] = useState(initialData?.start_date ?? parentTask?.start_date ?? today);
   const [endDate, setEndDate] = useState(initialData?.end_date ?? parentTask?.end_date ?? "");
   const [status, setStatus] = useState<TaskStatus>(initialData?.status ?? "Not Started");
   const [detail, setDetail] = useState(initialData?.detail ?? "");
