@@ -67,8 +67,10 @@ export function StatusSummary({ summary }: { summary: ProjectSummary }) {
   if (!msg) return null;
 
   return (
-    <p className="text-sm text-muted-foreground italic px-1">
-      {msg}
-    </p>
+    <div className="border border-dashed border-border rounded-lg px-4 py-3">
+      <p className="text-sm text-muted-foreground italic">
+        {msg}
+      </p>
+    </div>
   );
 }
