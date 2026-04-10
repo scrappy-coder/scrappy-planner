@@ -192,7 +192,10 @@ const Dashboard = () => {
           </div>
         )}
         {projects.length > 0 && (
-          <SummaryTiles projects={projects} tasks={allTasks} />
+          <>
+            <StatusSummary summary={getProjectSummary(allTasks)} />
+            <SummaryTiles projects={projects} tasks={allTasks} />
+          </>
         )}
 
         {projects.length > 0 && (() => {
