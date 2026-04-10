@@ -49,7 +49,7 @@ const AuthPage = () => {
         <CardHeader className="text-center">
           <div className="flex items-center justify-center gap-2 mb-2">
             <LayoutDashboard className="h-5 w-5 text-primary" />
-            <CardTitle className="text-lg">Quarterly Planner</CardTitle>
+            <CardTitle className="text-lg">Scrappy Planner</CardTitle>
           </div>
           <p className="text-sm text-muted-foreground">
             {isLogin ? "Sign in to your account" : "Create a new account"}

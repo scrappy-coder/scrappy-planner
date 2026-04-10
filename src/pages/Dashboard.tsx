@@ -169,7 +169,7 @@ const Dashboard = () => {
         <div className="container max-w-5xl mx-auto px-4 py-5 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             <LayoutDashboard className="h-5 w-5 text-primary" />
-            <h1 className="text-lg font-semibold text-foreground">Quarterly Planner</h1>
+            <h1 className="text-lg font-semibold text-foreground">Scrappy Planner</h1>
           </div>
           <div className="flex items-center gap-2">
             <ThemeToggle />
