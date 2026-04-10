@@ -73,12 +73,41 @@ const ProjectView = () => {
     refresh();
   };
 
+  const syncParentStatus = async (parentId: string | null | undefined, allTasks: Task[]) => {
+    if (!parentId) return;
+    const siblings = allTasks.filter((t) => t.parent_id === parentId);
+    if (siblings.length === 0) return;
+    const allDone = siblings.every((t) => t.status === "Done");
+    const anyInProgress = siblings.some((t) => t.status === "In Progress" || t.status === "In Review");
+    const anyBlocked = siblings.some((t) => t.status === "Blocked");
+    let newStatus: TaskStatus | null = null;
+    if (allDone) {
+      newStatus = "Done";
+    } else if (anyBlocked) {
+      newStatus = "Blocked";
+    } else if (anyInProgress) {
+      newStatus = "In Progress";
+    } else if (siblings.some((t) => t.status === "Done" || t.status === "In Progress" || t.status === "In Review")) {
+      newStatus = "In Progress";
+    }
+    if (newStatus) {
+      const parent = allTasks.find((t) => t.id === parentId);
+      if (parent && parent.status !== newStatus) {
+        await updateTask(parentId, { status: newStatus });
+      }
+    }
+  };
+
   const handleSaveTask = async (data: { name: string; start_date: string; end_date: string; status: TaskStatus; detail: string; parent_id?: string | null; effort: EffortSize; fiscal_quarter: string }) => {
     if (editingTask) {
       await updateTask(editingTask.id, data);
     } else {
       await createTask({ ...data, project_id: project.id, parent_id: data.parent_id ?? null, effort: data.effort, fiscal_quarter: data.fiscal_quarter });
     }
+    // Refresh tasks to get latest state, then sync parent
+    const updatedTasks = await getTasksByProject(project.id);
+    const parentId = data.parent_id ?? editingTask?.parent_id;
+    await syncParentStatus(parentId, updatedTasks);
     setEditingTask(undefined);
     refresh();
   };
