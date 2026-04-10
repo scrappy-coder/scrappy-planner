@@ -21,6 +21,7 @@ import { ProjectGantt } from "@/components/ProjectGantt";
 import { MemoPad } from "@/components/MemoPad";
 import { CompletionChart } from "@/components/CompletionChart";
 import { BurnDownChart } from "@/components/BurnDownChart";
+import { StatusSummary } from "@/components/StatusSummary";
 
 function SummaryTiles({ projects, tasks }: { projects: Project[]; tasks: Task[] }) {
   const summary = getProjectSummary(tasks);
