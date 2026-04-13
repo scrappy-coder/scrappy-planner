@@ -1,6 +1,5 @@
 import { useState, useCallback, DragEvent } from "react";
 import { Task, Project } from "@/lib/types";
-import { StatusBadge } from "@/components/StatusBadge";
 import { Card, CardContent } from "@/components/ui/card";
 import { MemoPad } from "@/components/MemoPad";
 import { GripVertical, Target, ListTodo } from "lucide-react";
@@ -19,6 +18,21 @@ function saveFocusedIds(ids: Set<string>) {
   localStorage.setItem(FOCUS_KEY, JSON.stringify([...ids]));
 }
 
+function getTaskColorClass(task: Task, isOverdue: boolean, isBehind: boolean): string {
+  if (isOverdue) return "bg-destructive/10 border-destructive/30";
+  if (isBehind) return "bg-status-at-risk/10 border-status-at-risk/30";
+  if (task.status === "Blocked") return "bg-status-blocked/10 border-status-blocked/30";
+  if (task.status === "In Progress") return "bg-status-in-progress/10 border-status-in-progress/30";
+  if (task.status === "In Review") return "bg-status-in-review/10 border-status-in-review/30";
+  if (task.status === "Done") return "bg-status-done/10 border-status-done/30";
+  return "bg-card border-border";
+}
+
+function formatDueDate(dateStr: string): string {
+  const [_y, m, d] = dateStr.split("-");
+  return `${m}-${d}`;
+}
+
 interface TaskCardProps {
   task: Task;
   project?: Project;
@@ -34,24 +48,23 @@ function TaskCard({ task, project, isOverdue, isBehind, isDemo, onNavigate }: Ta
     e.dataTransfer.effectAllowed = "move";
   };
 
+  const colorClass = getTaskColorClass(task, isOverdue, isBehind);
+
   return (
     <div
       draggable={!isDemo}
       onDragStart={handleDragStart}
-      className={`flex items-center gap-2 p-3 rounded-md border border-border bg-card hover:bg-accent/50 transition-colors ${isDemo ? "" : "cursor-grab active:cursor-grabbing"}`}
+      className={`flex items-center gap-2 p-3 rounded-md border transition-colors ${colorClass} hover:opacity-80 ${isDemo ? "" : "cursor-grab active:cursor-grabbing"}`}
       onClick={() => !isDemo && onNavigate()}
     >
       {!isDemo && <GripVertical className="h-3.5 w-3.5 text-muted-foreground/50 shrink-0" />}
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2">
           <span className="text-sm font-medium text-foreground truncate">{task.name}</span>
-          <StatusBadge status={task.status} />
-          {isOverdue && <span className="text-[10px] font-medium text-destructive">OVERDUE</span>}
-          {isBehind && <span className="text-[10px] font-medium text-orange-500">BEHIND</span>}
         </div>
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
           <span>{project?.name ?? "Unknown"}</span>
-          <span>· {task.start_date} → {task.end_date}</span>
+          <span>· due {formatDueDate(task.end_date)}</span>
         </div>
       </div>
     </div>
@@ -161,28 +174,12 @@ export function TodayBoard({ tasks, projects, isDemo, onNavigate }: TodayBoardPr
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  // Filter to only tasks that exist in the provided list
   const validFocusedIds = new Set([...focusedIds].filter((id) => tasks.some((t) => t.id === id)));
   const focusTasks = tasks.filter((t) => validFocusedIds.has(t.id));
   const todoTasks = tasks.filter((t) => !validFocusedIds.has(t.id));
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      <Card className="lg:col-span-1">
-        <CardContent className="py-4 px-3">
-          <DropZone
-            title="Todo"
-            icon={<ListTodo className="h-4 w-4 text-muted-foreground" />}
-            tasks={todoTasks}
-            projects={projects}
-            today={today}
-            isDemo={isDemo}
-            onNavigate={onNavigate}
-            onDrop={moveToTodo}
-            emptyText="Drag tasks here to plan"
-          />
-        </CardContent>
-      </Card>
       <Card className="lg:col-span-1">
         <CardContent className="py-4 px-3">
           <DropZone
@@ -195,6 +192,21 @@ export function TodayBoard({ tasks, projects, isDemo, onNavigate }: TodayBoardPr
             onNavigate={onNavigate}
             onDrop={moveToFocus}
             emptyText="Drag tasks here to focus on today"
+          />
+        </CardContent>
+      </Card>
+      <Card className="lg:col-span-1">
+        <CardContent className="py-4 px-3">
+          <DropZone
+            title="Todo"
+            icon={<ListTodo className="h-4 w-4 text-muted-foreground" />}
+            tasks={todoTasks}
+            projects={projects}
+            today={today}
+            isDemo={isDemo}
+            onNavigate={onNavigate}
+            onDrop={moveToTodo}
+            emptyText="Drag tasks here to plan"
           />
         </CardContent>
       </Card>
