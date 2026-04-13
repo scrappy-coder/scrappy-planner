@@ -22,6 +22,7 @@ import { MemoPad } from "@/components/MemoPad";
 import { CompletionChart } from "@/components/CompletionChart";
 import { BurnDownChart } from "@/components/BurnDownChart";
 import { StatusSummary } from "@/components/StatusSummary";
+import { TodayBoard } from "@/components/TodayBoard";
 
 function SummaryTiles({ projects, tasks }: { projects: Project[]; tasks: Task[] }) {
   const summary = getProjectSummary(tasks);
