@@ -208,39 +208,55 @@ export function TodayBoard({ tasks, projects, isDemo, onNavigate }: TodayBoardPr
   if (!loaded) return null;
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      <Card className="lg:col-span-1">
-        <CardContent className="py-4 px-3">
-          <DropZone
-            title="Today's Focus"
-            icon={<Target className="h-4 w-4 text-primary" />}
-            tasks={focusTasks}
-            projects={projects}
-            today={today}
-            isDemo={isDemo}
-            onNavigate={onNavigate}
-            onDrop={moveToFocus}
-            emptyText="Drag tasks here to focus on today"
-          />
-        </CardContent>
-      </Card>
-      <Card className="lg:col-span-1">
-        <CardContent className="py-4 px-3">
-          <DropZone
-            title="Todo"
-            icon={<ListTodo className="h-4 w-4 text-muted-foreground" />}
-            tasks={todoTasks}
-            projects={projects}
-            today={today}
-            isDemo={isDemo}
-            onNavigate={onNavigate}
-            onDrop={moveToTodo}
-            emptyText="Drag tasks here to plan"
-            showLegend
-          />
-        </CardContent>
-      </Card>
-      <MemoPad />
+    <div className="space-y-3">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <Card className="lg:col-span-1">
+          <CardContent className="py-4 px-3">
+            <DropZone
+              title="Today's Focus"
+              icon={<Target className="h-4 w-4 text-primary" />}
+              tasks={focusTasks}
+              projects={projects}
+              today={today}
+              isDemo={isDemo}
+              onNavigate={onNavigate}
+              onDrop={moveToFocus}
+              emptyText="Drag tasks here to focus on today"
+            />
+          </CardContent>
+        </Card>
+        <Card className="lg:col-span-1">
+          <CardContent className="py-4 px-3">
+            <DropZone
+              title="Todo"
+              icon={<ListTodo className="h-4 w-4 text-muted-foreground" />}
+              tasks={todoTasks}
+              projects={projects}
+              today={today}
+              isDemo={isDemo}
+              onNavigate={onNavigate}
+              onDrop={moveToTodo}
+              emptyText="Drag tasks here to plan"
+            />
+          </CardContent>
+        </Card>
+        <MemoPad />
+      </div>
+      <div className="flex flex-wrap gap-x-3 gap-y-1 px-1">
+        {LEGEND_ITEMS.map((item) => (
+          <div key={item.label} className="flex items-center gap-1.5">
+            <span
+              className="h-2.5 w-2.5 rounded-sm border"
+              style={
+                item.cssVar
+                  ? { backgroundColor: `hsla(var(${item.cssVar}) / 0.25)`, borderColor: `hsla(var(${item.cssVar}) / 0.5)` }
+                  : { backgroundColor: "hsl(var(--card))", borderColor: "hsl(var(--border))" }
+              }
+            />
+            <span className="text-[10px] text-muted-foreground">{item.label}</span>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
