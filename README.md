@@ -1,37 +1,37 @@
 # Scrappy Planner
 
-A lightweight project and task management app for tracking work across fiscal quarters.
+> A compact way to quickly organize daily work — without overcomplicating things.
+
+Scrappy Planner is built for people who want a no-nonsense task tracker that stays out of the way. No bloated feature sets, no endless configuration — just projects, tasks, timelines, and a clear view of what needs your attention today.
+
+![Scrappy Planner Dashboard](public/dashboard-shot.png)
 
 ## Features
 
-- **Dashboard** — Overview of all projects with a conversational status summary, completion charts, and burndown tracking
+- **Dashboard** — At-a-glance overview with a conversational status summary that tells you where you stand
 - **Task Management** — Create, edit, and bulk-edit tasks with parent/child relationships; child status automatically rolls up to parents
-- **Gantt Charts** — Visualize project timelines and task dependencies
-- **Memo Pad** — Quick notes that persist across sessions
+- **Gantt Charts** — Visualize project timelines across fiscal quarters
+- **Today's Focus** — See in-progress and overdue tasks front and center
+- **Quick Notes** — Jot down thoughts that persist across sessions
 - **Dark / Light Mode** — Toggle between themes
-- **Authentication** — Secure login and signup with Google OAuth support
+- **Authentication** — Secure login with Google OAuth support
 
 ## Tech Stack
 
 - React 18 + TypeScript
 - Vite
 - Tailwind CSS + shadcn/ui
-- Recharts (charts & graphs)
+- Recharts
 - Lovable Cloud (database, auth, storage)
 
 ## Getting Started
 
 ```sh
-# Clone the repo
 git clone <YOUR_GIT_URL>
-
-# Install dependencies
 npm install
-
-# Start dev server
 npm run dev
 ```
 
 ## Live
 
-Published at [scrappy-planner.lovable.app](https://scrappy-planner.lovable.app)
+[scrappy-planner.lovable.app](https://scrappy-planner.lovable.app)
