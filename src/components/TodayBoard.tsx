@@ -68,10 +68,9 @@ interface DropZoneProps {
   onNavigate: (projectId: string) => void;
   onDrop: (taskId: string) => void;
   emptyText: string;
-  accentClass?: string;
 }
 
-function DropZone({ title, icon, tasks, projects, today, isDemo, onNavigate, onDrop, emptyText, accentClass }: DropZoneProps) {
+function DropZone({ title, icon, tasks, projects, today, isDemo, onNavigate, onDrop, emptyText }: DropZoneProps) {
   const [dragOver, setDragOver] = useState(false);
 
   const handleDragOver = (e: DragEvent) => {

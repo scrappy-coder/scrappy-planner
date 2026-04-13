@@ -6,8 +6,7 @@ import { getProjects, createProject, deleteProject, getTasks, seedData, updatePr
 import { DEMO_PROJECTS, DEMO_TASKS } from "@/lib/demoData";
 import { assessRisk, getProjectSummary } from "@/lib/risk";
 import { getAdjacentQuarters } from "@/lib/fiscal";
-import { parseLocalDate } from "@/lib/utils";
-import { RiskBadge, StatusBadge } from "@/components/StatusBadge";
+import { RiskBadge } from "@/components/StatusBadge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
