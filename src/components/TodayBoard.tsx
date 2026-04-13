@@ -154,6 +154,23 @@ function DropZone({ title, icon, tasks, projects, today, isDemo, onNavigate, onD
           })
         )}
       </div>
+      {showLegend && (
+        <div className="flex flex-wrap gap-x-3 gap-y-1 mt-3 pt-3 border-t border-border">
+          {LEGEND_ITEMS.map((item) => (
+            <div key={item.label} className="flex items-center gap-1.5">
+              <span
+                className="h-2.5 w-2.5 rounded-sm border"
+                style={
+                  item.cssVar
+                    ? { backgroundColor: `hsla(var(${item.cssVar}) / 0.25)`, borderColor: `hsla(var(${item.cssVar}) / 0.5)` }
+                    : { backgroundColor: "hsl(var(--card))", borderColor: "hsl(var(--border))" }
+                }
+              />
+              <span className="text-[10px] text-muted-foreground">{item.label}</span>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
