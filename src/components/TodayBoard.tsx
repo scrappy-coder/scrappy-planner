@@ -18,14 +18,15 @@ function saveFocusedIds(ids: Set<string>) {
   localStorage.setItem(FOCUS_KEY, JSON.stringify([...ids]));
 }
 
-function getTaskColorClass(task: Task, isOverdue: boolean, isBehind: boolean): string {
-  if (isOverdue) return "bg-destructive/10 border-destructive/30";
-  if (isBehind) return "bg-status-at-risk/10 border-status-at-risk/30";
-  if (task.status === "Blocked") return "bg-status-blocked/10 border-status-blocked/30";
-  if (task.status === "In Progress") return "bg-status-in-progress/10 border-status-in-progress/30";
-  if (task.status === "In Review") return "bg-status-in-review/10 border-status-in-review/30";
-  if (task.status === "Done") return "bg-status-done/10 border-status-done/30";
-  return "bg-card border-border";
+function getTaskStyle(task: Task, isOverdue: boolean, isBehind: boolean): React.CSSProperties {
+  const alpha = (cssVar: string, opacity: number) => `hsla(var(${cssVar}) / ${opacity})`;
+  if (isOverdue) return { backgroundColor: alpha("--destructive", 0.1), borderColor: alpha("--destructive", 0.3) };
+  if (isBehind) return { backgroundColor: alpha("--status-at-risk", 0.1), borderColor: alpha("--status-at-risk", 0.3) };
+  if (task.status === "Blocked") return { backgroundColor: alpha("--status-blocked", 0.1), borderColor: alpha("--status-blocked", 0.3) };
+  if (task.status === "In Progress") return { backgroundColor: alpha("--status-in-progress", 0.1), borderColor: alpha("--status-in-progress", 0.3) };
+  if (task.status === "In Review") return { backgroundColor: alpha("--status-in-review", 0.1), borderColor: alpha("--status-in-review", 0.3) };
+  if (task.status === "Done") return { backgroundColor: alpha("--status-done", 0.1), borderColor: alpha("--status-done", 0.3) };
+  return {};
 }
 
 function formatDueDate(dateStr: string): string {
