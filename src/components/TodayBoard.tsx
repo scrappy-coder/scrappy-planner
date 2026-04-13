@@ -49,13 +49,14 @@ function TaskCard({ task, project, isOverdue, isBehind, isDemo, onNavigate }: Ta
     e.dataTransfer.effectAllowed = "move";
   };
 
-  const colorClass = getTaskColorClass(task, isOverdue, isBehind);
+  const taskStyle = getTaskStyle(task, isOverdue, isBehind);
 
   return (
     <div
       draggable={!isDemo}
       onDragStart={handleDragStart}
-      className={`flex items-center gap-2 p-3 rounded-md border transition-colors ${colorClass} hover:opacity-80 ${isDemo ? "" : "cursor-grab active:cursor-grabbing"}`}
+      style={taskStyle}
+      className={`flex items-center gap-2 p-3 rounded-md border border-border transition-colors hover:opacity-80 ${isDemo ? "" : "cursor-grab active:cursor-grabbing"}`}
       onClick={() => !isDemo && onNavigate()}
     >
       {!isDemo && <GripVertical className="h-3.5 w-3.5 text-muted-foreground/50 shrink-0" />}
