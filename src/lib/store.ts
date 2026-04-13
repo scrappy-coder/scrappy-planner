@@ -161,3 +161,44 @@ export async function seedData() {
 export async function isCloudUserCheck(): Promise<boolean> {
   return isCloudUser();
 }
+
+// ── Focus Tasks (for TodayBoard) ──
+
+export async function getFocusedTaskIds(): Promise<string[]> {
+  if (await isCloudUser()) {
+    const user_id = await getUserId();
+    const { data, error } = await supabase
+      .from("focus_tasks")
+      .select("task_id")
+      .eq("user_id", user_id);
+    if (error) throw error;
+    return (data ?? []).map((r: { task_id: string }) => r.task_id);
+  }
+  try {
+    return JSON.parse(localStorage.getItem("scrappy-focus-task-ids") || "[]");
+  } catch {
+    return [];
+  }
+}
+
+export async function addFocusedTaskId(taskId: string): Promise<void> {
+  if (await isCloudUser()) {
+    const user_id = await getUserId();
+    await supabase.from("focus_tasks").upsert({ user_id, task_id: taskId }, { onConflict: "user_id,task_id" });
+    return;
+  }
+  const ids = new Set(JSON.parse(localStorage.getItem("scrappy-focus-task-ids") || "[]"));
+  ids.add(taskId);
+  localStorage.setItem("scrappy-focus-task-ids", JSON.stringify([...ids]));
+}
+
+export async function removeFocusedTaskId(taskId: string): Promise<void> {
+  if (await isCloudUser()) {
+    const user_id = await getUserId();
+    await supabase.from("focus_tasks").delete().eq("user_id", user_id).eq("task_id", taskId);
+    return;
+  }
+  const ids = new Set(JSON.parse(localStorage.getItem("scrappy-focus-task-ids") || "[]"));
+  ids.delete(taskId);
+  localStorage.setItem("scrappy-focus-task-ids", JSON.stringify([...ids]));
+}

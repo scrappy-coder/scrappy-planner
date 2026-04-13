@@ -1,22 +1,9 @@
-import { useState, useCallback, DragEvent } from "react";
+import { useState, useEffect, useCallback, DragEvent } from "react";
 import { Task, Project } from "@/lib/types";
 import { Card, CardContent } from "@/components/ui/card";
 import { MemoPad } from "@/components/MemoPad";
 import { GripVertical, Target, ListTodo } from "lucide-react";
-
-const FOCUS_KEY = "scrappy-focus-task-ids";
-
-function loadFocusedIds(): Set<string> {
-  try {
-    const raw = localStorage.getItem(FOCUS_KEY);
-    if (raw) return new Set(JSON.parse(raw));
-  } catch {}
-  return new Set();
-}
-
-function saveFocusedIds(ids: Set<string>) {
-  localStorage.setItem(FOCUS_KEY, JSON.stringify([...ids]));
-}
+import { getFocusedTaskIds, addFocusedTaskId, removeFocusedTaskId } from "@/lib/store";
 
 function getTaskStyle(task: Task, isOverdue: boolean, isBehind: boolean): React.CSSProperties {
   const alpha = (cssVar: string, opacity: number) => `hsla(var(${cssVar}) / ${opacity})`;
@@ -183,23 +170,33 @@ interface TodayBoardProps {
 }
 
 export function TodayBoard({ tasks, projects, isDemo, onNavigate }: TodayBoardProps) {
-  const [focusedIds, setFocusedIds] = useState<Set<string>>(() => loadFocusedIds());
+  const [focusedIds, setFocusedIds] = useState<Set<string>>(new Set());
+  const [loaded, setLoaded] = useState(false);
 
-  const updateFocused = useCallback((updater: (prev: Set<string>) => Set<string>) => {
-    setFocusedIds((prev) => {
-      const next = updater(new Set(prev));
-      saveFocusedIds(next);
-      return next;
-    });
+  useEffect(() => {
+    getFocusedTaskIds().then((ids) => {
+      setFocusedIds(new Set(ids));
+      setLoaded(true);
+    }).catch(() => setLoaded(true));
   }, []);
 
   const moveToFocus = useCallback((taskId: string) => {
-    updateFocused((s) => { s.add(taskId); return s; });
-  }, [updateFocused]);
+    setFocusedIds((prev) => {
+      const next = new Set(prev);
+      next.add(taskId);
+      return next;
+    });
+    addFocusedTaskId(taskId).catch(console.error);
+  }, []);
 
   const moveToTodo = useCallback((taskId: string) => {
-    updateFocused((s) => { s.delete(taskId); return s; });
-  }, [updateFocused]);
+    setFocusedIds((prev) => {
+      const next = new Set(prev);
+      next.delete(taskId);
+      return next;
+    });
+    removeFocusedTaskId(taskId).catch(console.error);
+  }, []);
 
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -207,6 +204,8 @@ export function TodayBoard({ tasks, projects, isDemo, onNavigate }: TodayBoardPr
   const validFocusedIds = new Set([...focusedIds].filter((id) => tasks.some((t) => t.id === id)));
   const focusTasks = tasks.filter((t) => validFocusedIds.has(t.id));
   const todoTasks = tasks.filter((t) => !validFocusedIds.has(t.id));
+
+  if (!loaded) return null;
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
