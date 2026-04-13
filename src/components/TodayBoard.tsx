@@ -73,6 +73,16 @@ function TaskCard({ task, project, isOverdue, isBehind, isDemo, onNavigate }: Ta
   );
 }
 
+const LEGEND_ITEMS = [
+  { label: "Overdue", cssVar: "--destructive" },
+  { label: "Behind", cssVar: "--status-at-risk" },
+  { label: "Blocked", cssVar: "--status-blocked" },
+  { label: "In Progress", cssVar: "--status-in-progress" },
+  { label: "In Review", cssVar: "--status-in-review" },
+  { label: "Done", cssVar: "--status-done" },
+  { label: "Not Started", cssVar: null },
+];
+
 interface DropZoneProps {
   title: string;
   icon: React.ReactNode;
@@ -83,9 +93,10 @@ interface DropZoneProps {
   onNavigate: (projectId: string) => void;
   onDrop: (taskId: string) => void;
   emptyText: string;
+  showLegend?: boolean;
 }
 
-function DropZone({ title, icon, tasks, projects, today, isDemo, onNavigate, onDrop, emptyText }: DropZoneProps) {
+function DropZone({ title, icon, tasks, projects, today, isDemo, onNavigate, onDrop, emptyText, showLegend }: DropZoneProps) {
   const [dragOver, setDragOver] = useState(false);
 
   const handleDragOver = (e: DragEvent) => {
