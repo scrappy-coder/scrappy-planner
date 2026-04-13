@@ -237,6 +237,7 @@ export function TodayBoard({ tasks, projects, isDemo, onNavigate }: TodayBoardPr
             onNavigate={onNavigate}
             onDrop={moveToTodo}
             emptyText="Drag tasks here to plan"
+            showLegend
           />
         </CardContent>
       </Card>
