@@ -27,13 +27,6 @@ This is built using Loveable
 - Recharts
 - Lovable Cloud (database, auth, storage)
 
-## Getting Started
-
-```sh
-git clone <YOUR_GIT_URL>
-npm install
-npm run dev
-```
 
 ## Live
 
