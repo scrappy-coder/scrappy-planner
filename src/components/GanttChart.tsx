@@ -12,6 +12,7 @@ interface GanttChartProps {
 }
 
 export function GanttChart({ tasks, quarter }: GanttChartProps) {
+  const [hideCompleted, setHideCompleted] = useState(true);
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
