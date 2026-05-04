@@ -1,8 +1,10 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { Task } from "@/lib/types";
 import { FiscalQuarter } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { parseLocalDate } from "@/lib/utils";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
 
 interface GanttChartProps {
   tasks: Task[];
@@ -10,6 +12,7 @@ interface GanttChartProps {
 }
 
 export function GanttChart({ tasks, quarter }: GanttChartProps) {
+  const [hideCompleted, setHideCompleted] = useState(true);
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
@@ -74,14 +77,17 @@ export function GanttChart({ tasks, quarter }: GanttChartProps) {
     const parentTasks = tasks.filter((t) => !t.parent_id);
     const result: { task: Task; isChild: boolean }[] = [];
     for (const parent of parentTasks) {
-      result.push({ task: parent, isChild: false });
       const children = tasks.filter((t) => t.parent_id === parent.id);
-      for (const child of children) {
+      const visibleChildren = hideCompleted ? children.filter((c) => c.status !== "Done") : children;
+      const parentDone = parent.status === "Done";
+      if (hideCompleted && parentDone && visibleChildren.length === 0) continue;
+      result.push({ task: parent, isChild: false });
+      for (const child of visibleChildren) {
         result.push({ task: child, isChild: true });
       }
     }
     return result;
-  }, [tasks]);
+  }, [tasks, hideCompleted]);
 
   if (tasks.length === 0) {
     return (
@@ -92,8 +98,19 @@ export function GanttChart({ tasks, quarter }: GanttChartProps) {
   }
 
   return (
-    <div className="w-full overflow-x-auto">
-      <div className="min-w-[600px]">
+    <div className="w-full space-y-3">
+      <div className="flex items-center gap-2">
+        <Checkbox
+          id="gantt-hide-completed"
+          checked={hideCompleted}
+          onCheckedChange={(v) => setHideCompleted(!!v)}
+        />
+        <Label htmlFor="gantt-hide-completed" className="text-xs text-muted-foreground cursor-pointer">
+          Hide completed tasks
+        </Label>
+      </div>
+      <div className="w-full overflow-x-auto">
+        <div className="min-w-[600px]">
         {/* Month headers */}
         <div className="relative h-8 border-b border-border mb-1">
           {months.map((m) => (
@@ -174,6 +191,7 @@ export function GanttChart({ tasks, quarter }: GanttChartProps) {
             Today ({today.toLocaleDateString()})
           </div>
         )}
+      </div>
       </div>
     </div>
   );
