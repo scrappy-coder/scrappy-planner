@@ -77,14 +77,17 @@ export function GanttChart({ tasks, quarter }: GanttChartProps) {
     const parentTasks = tasks.filter((t) => !t.parent_id);
     const result: { task: Task; isChild: boolean }[] = [];
     for (const parent of parentTasks) {
-      result.push({ task: parent, isChild: false });
       const children = tasks.filter((t) => t.parent_id === parent.id);
-      for (const child of children) {
+      const visibleChildren = hideCompleted ? children.filter((c) => c.status !== "Done") : children;
+      const parentDone = parent.status === "Done";
+      if (hideCompleted && parentDone && visibleChildren.length === 0) continue;
+      result.push({ task: parent, isChild: false });
+      for (const child of visibleChildren) {
         result.push({ task: child, isChild: true });
       }
     }
     return result;
-  }, [tasks]);
+  }, [tasks, hideCompleted]);
 
   if (tasks.length === 0) {
     return (
