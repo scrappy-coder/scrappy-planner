@@ -98,8 +98,19 @@ export function GanttChart({ tasks, quarter }: GanttChartProps) {
   }
 
   return (
-    <div className="w-full overflow-x-auto">
-      <div className="min-w-[600px]">
+    <div className="w-full space-y-3">
+      <div className="flex items-center gap-2">
+        <Checkbox
+          id="gantt-hide-completed"
+          checked={hideCompleted}
+          onCheckedChange={(v) => setHideCompleted(!!v)}
+        />
+        <Label htmlFor="gantt-hide-completed" className="text-xs text-muted-foreground cursor-pointer">
+          Hide completed tasks
+        </Label>
+      </div>
+      <div className="w-full overflow-x-auto">
+        <div className="min-w-[600px]">
         {/* Month headers */}
         <div className="relative h-8 border-b border-border mb-1">
           {months.map((m) => (
