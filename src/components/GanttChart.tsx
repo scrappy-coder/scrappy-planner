@@ -192,6 +192,7 @@ export function GanttChart({ tasks, quarter }: GanttChartProps) {
           </div>
         )}
       </div>
+      </div>
     </div>
   );
 }
