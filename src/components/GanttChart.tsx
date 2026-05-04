@@ -1,8 +1,10 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { Task } from "@/lib/types";
 import { FiscalQuarter } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { parseLocalDate } from "@/lib/utils";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
 
 interface GanttChartProps {
   tasks: Task[];
